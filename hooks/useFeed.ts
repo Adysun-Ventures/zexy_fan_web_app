@@ -22,3 +22,19 @@ export function useCreatorContent(creatorId: number) {
     enabled: !!creatorId,
   });
 }
+
+export function useCreatorByUsername(username: string) {
+  return useQuery({
+    queryKey: ['creator', 'username', username],
+    queryFn: () => feedService.getCreatorByUsername(username),
+    enabled: !!username,
+  });
+}
+
+export function useCreatorContentByUsername(username: string) {
+  return useQuery({
+    queryKey: ['creator', 'username', username, 'content'],
+    queryFn: () => feedService.getCreatorContentByUsername(username),
+    enabled: !!username,
+  });
+}
