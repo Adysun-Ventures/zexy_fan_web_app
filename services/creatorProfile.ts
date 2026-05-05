@@ -118,11 +118,30 @@ const MOCK_PROFILE_CONFIG: CreatorProfileConfig = {
 
 // Mock configs for other creators
 const MOCK_PROFILE_CONFIGS: Record<string, CreatorProfileConfig> = {
-  creator_one: MOCK_PROFILE_CONFIG,
-  creator_two: {
+  priya_sharma: {
+    ...MOCK_PROFILE_CONFIG,
+    creatorId: 1,
+    username: 'priya_sharma',
+    theme: {
+      primaryColor: '#ec4899',
+      secondaryColor: '#9333ea',
+      gradientStart: '#ec4899',
+      gradientEnd: '#9333ea',
+      fontFamily: 'Inter',
+      borderRadius: 'lg',
+      buttonStyle: 'solid',
+    },
+    intro: {
+      greeting: "Hi, I'm Priya",
+      bio: 'Fashion & lifestyle creator sharing style tips, beauty secrets, and daily inspiration. Join me for exclusive content and personalized fashion advice.',
+      showAvatar: true,
+      avatarStyle: 'circle',
+    },
+  },
+  arjun_fitness: {
     ...MOCK_PROFILE_CONFIG,
     creatorId: 2,
-    username: 'creator_two',
+    username: 'arjun_fitness',
     theme: {
       primaryColor: '#f59e0b',
       secondaryColor: '#ef4444',
@@ -130,31 +149,31 @@ const MOCK_PROFILE_CONFIGS: Record<string, CreatorProfileConfig> = {
       gradientEnd: '#ef4444',
       fontFamily: 'Inter',
       borderRadius: 'md',
-      buttonStyle: 'outline',
+      buttonStyle: 'solid',
     },
     intro: {
-      greeting: "Hi, I'm Mike",
-      bio: 'Professional chef sharing my culinary secrets. Get access to exclusive recipes, cooking techniques, and live cooking sessions.',
+      greeting: "Hi, I'm Arjun",
+      bio: 'Certified fitness coach helping you achieve your health goals. Get access to exclusive workouts, nutrition plans, and personalized training.',
       showAvatar: true,
       avatarStyle: 'rounded',
     },
   },
-  creator_three: {
+  neha_music: {
     ...MOCK_PROFILE_CONFIG,
     creatorId: 3,
-    username: 'creator_three',
+    username: 'neha_music',
     theme: {
-      primaryColor: '#8b5cf6',
-      secondaryColor: '#06b6d4',
-      gradientStart: '#8b5cf6',
-      gradientEnd: '#06b6d4',
+      primaryColor: '#06b6d4',
+      secondaryColor: '#3b82f6',
+      gradientStart: '#06b6d4',
+      gradientEnd: '#3b82f6',
       fontFamily: 'Inter',
       borderRadius: 'xl',
       buttonStyle: 'solid',
     },
     intro: {
-      greeting: "Hi, I'm Priya",
-      bio: 'Classical dancer and choreographer. Join me for exclusive dance tutorials, behind-the-scenes content, and personalized coaching.',
+      greeting: "Hi, I'm Neha",
+      bio: 'Professional singer and musician. Join me for exclusive music releases, live sessions, and singing masterclasses.',
       showAvatar: true,
       avatarStyle: 'circle',
     },

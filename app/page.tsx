@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 
 export default function HomePage() {
-  redirect('/feed');
+  // Redirect to creators page (default during development)
+  redirect('/creators');
 }
