@@ -1,0 +1,71 @@
+/**
+ * Creator Intro Section
+ * 
+ * Displays creator greeting, bio, and avatar with customizable styling.
+ */
+
+'use client';
+
+import { IntroConfig } from '@/types/creator-profile';
+import { Creator } from '@/services/feed';
+
+interface CreatorIntroSectionProps {
+  creator: Creator;
+  config: IntroConfig;
+}
+
+/**
+ * Intro section component for creator profile
+ * 
+ * @param creator - Creator data
+ * @param config - Intro section configuration
+ */
+export function CreatorIntroSection({ creator, config }: CreatorIntroSectionProps) {
+  const avatarStyleClasses = {
+    circle: 'rounded-full',
+    square: 'rounded-none',
+    rounded: 'rounded-lg',
+  };
+  
+  return (
+    <div className="px-4 py-6 space-y-4">
+      {/* Avatar */}
+      {config.showAvatar && (
+        <div className="flex justify-center">
+          <div
+            className={`h-24 w-24 flex items-center justify-center text-white text-4xl font-semibold ${avatarStyleClasses[config.avatarStyle]}`}
+            style={{
+              background: 'linear-gradient(to bottom right, var(--profile-gradient-start), var(--profile-gradient-end))',
+            }}
+          >
+            {creator.name[0]}
+          </div>
+        </div>
+      )}
+      
+      {/* Greeting */}
+      <div className="text-center">
+        <h1 className="text-3xl font-bold" style={{ color: 'var(--profile-primary)' }}>
+          {config.greeting}
+        </h1>
+      </div>
+      
+      {/* Bio */}
+      <div className="text-center">
+        <p className="text-muted-foreground leading-relaxed">
+          {config.bio}
+        </p>
+      </div>
+      
+      {/* Stats */}
+      <div className="flex justify-center gap-6 pt-2">
+        <div className="text-center">
+          <p className="text-2xl font-bold" style={{ color: 'var(--profile-primary)' }}>
+            {creator.subscriber_count.toLocaleString()}
+          </p>
+          <p className="text-sm text-muted-foreground">Subscribers</p>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -57,3 +57,14 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Profile Theme Variables */
+:root {
+  --profile-primary: #ffffff;
+  --profile-secondary: #3f3f46;
+  --profile-gradient-start: #9333ea;
+  --profile-gradient-end: #ec4899;
+  --profile-font-family: 'Inter';
+  --profile-border-radius: 0.5rem;
+  --profile-button-style: solid;
+}
