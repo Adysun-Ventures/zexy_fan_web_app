@@ -5,7 +5,7 @@ import { useCreators } from '@/hooks/useFeed';
 import { useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 
-export default function CreatorPage() {
+export default function CreatorPageRedirect() {
   const params = useParams();
   const router = useRouter();
   const creatorId = parseInt(params.id as string);
@@ -16,7 +16,7 @@ export default function CreatorPage() {
     if (creators && creatorId) {
       const creator = creators.find((c) => c.id === creatorId);
       if (creator) {
-        // Redirect to username-based route
+        // Redirect to public username-based route
         router.replace(`/creator/${creator.username}`);
       }
     }
