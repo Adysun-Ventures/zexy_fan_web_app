@@ -272,7 +272,7 @@ export const feedService = {
     }
 
     const response = await apiClient.get('/api/v1/fan/creators');
-    return response.data.data;
+    return response.data.data.data;
   },
 
   /**
@@ -315,7 +315,7 @@ export const feedService = {
     }
 
     const response = await apiClient.get(`/api/v1/fan/creators/${username}`);
-    return response.data.data;
+    return response.data.data.data;
   },
 
   /**
