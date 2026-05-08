@@ -13,9 +13,11 @@ import { queryClient } from '@/lib/queryClient';
 interface AuthContextType {
   user: User | null;
   token: string | null;
+  refreshToken: string | null;
+  sessionToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (token: string, user: User) => void;
+  login: (tokens: { access_token: string; refresh_token?: string; session_token?: string }, user: User) => void;
   logout: () => void;
 }
 
@@ -24,16 +26,22 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [refreshToken, setRefreshToken] = useState<string | null>(null);
+  const [sessionToken, setSessionToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
     // Load from localStorage on mount
     const storedToken = localStorage.getItem('auth_token');
+    const storedRefreshToken = localStorage.getItem('refresh_token');
+    const storedSessionToken = localStorage.getItem('session_token');
     const storedUser = localStorage.getItem('auth_user');
 
     if (storedToken && storedUser) {
       setToken(storedToken);
+      setRefreshToken(storedRefreshToken);
+      setSessionToken(storedSessionToken);
       setUser(JSON.parse(storedUser));
     }
     setIsLoading(false);
@@ -43,6 +51,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Listen for session expiry
     const handleSessionExpired = () => {
       setToken(null);
+      setRefreshToken(null);
+      setSessionToken(null);
       setUser(null);
     };
 
@@ -50,17 +60,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener('session-expired', handleSessionExpired);
   }, []);
 
-  const login = (newToken: string, newUser: User) => {
-    localStorage.setItem('auth_token', newToken);
+  const login = (tokens: { access_token: string; refresh_token?: string; session_token?: string }, newUser: User) => {
+    localStorage.setItem('auth_token', tokens.access_token);
+    if (tokens.refresh_token) localStorage.setItem('refresh_token', tokens.refresh_token);
+    if (tokens.session_token) localStorage.setItem('session_token', tokens.session_token);
     localStorage.setItem('auth_user', JSON.stringify(newUser));
-    setToken(newToken);
+    
+    setToken(tokens.access_token);
+    setRefreshToken(tokens.refresh_token || null);
+    setSessionToken(tokens.session_token || null);
     setUser(newUser);
   };
 
   const logout = () => {
     localStorage.removeItem('auth_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('session_token');
     localStorage.removeItem('auth_user');
+    
     setToken(null);
+    setRefreshToken(null);
+    setSessionToken(null);
     setUser(null);
     queryClient.clear();
     router.push('/login');
@@ -71,6 +91,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         user,
         token,
+        refreshToken,
+        sessionToken,
         isAuthenticated: !!token,
         isLoading,
         login,
@@ -106,9 +128,24 @@ export function useVerifyOTP() {
   return useMutation({
     mutationFn: (data: VerifyOTPRequest) => authService.verifyOTP(data),
     onSuccess: async (response) => {
-      // Fetch user profile
-      const user = await authService.getMe();
-      login(response.access_token, user);
+      // Temporarily store access_token so getMe() can use it via axios interceptor
+      localStorage.setItem('auth_token', response.access_token);
+      
+      try {
+        // Fetch user profile
+        const user = await authService.getMe();
+        
+        // Properly login with all tokens and user data
+        login({
+          access_token: response.access_token,
+          refresh_token: response.refresh_token,
+          session_token: response.session_token
+        }, user);
+      } catch (error) {
+        // If profile fetch fails, clear the token we just set
+        localStorage.removeItem('auth_token');
+        throw error;
+      }
     },
   });
 }

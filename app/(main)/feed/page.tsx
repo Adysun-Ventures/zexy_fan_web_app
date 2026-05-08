@@ -2,6 +2,7 @@
 
 import { useFeed } from '@/hooks/useFeed';
 import { ContentCard } from '@/components/feed/content-card';
+import { SubscribedLatest } from '@/components/feed/subscribed-latest';
 import { Loader2 } from 'lucide-react';
 
 export default function FeedPage() {
@@ -23,22 +24,24 @@ export default function FeedPage() {
     );
   }
 
-  if (!content || content.length === 0) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-muted-foreground">No content available</p>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Feed</h1>
-      <div className="grid gap-6">
-        {content.map((item) => (
-          <ContentCard key={item.id} content={item} />
-        ))}
-      </div>
+      
+      {/* Subscribed Creators Latest Posts */}
+      <SubscribedLatest />
+
+      {!content || content.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">No content available</p>
+        </div>
+      ) : (
+        <div className="grid gap-6">
+          {content.map((item) => (
+            <ContentCard key={item.id} content={item} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

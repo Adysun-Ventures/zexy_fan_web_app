@@ -40,6 +40,8 @@ apiClient.interceptors.response.use(
     // Handle auth errors
     if (status === 401 || status === 403) {
       localStorage.removeItem('auth_token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('session_token');
       localStorage.removeItem('auth_user');
       
       // Dispatch session expired event
