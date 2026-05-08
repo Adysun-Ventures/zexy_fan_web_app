@@ -51,9 +51,11 @@ export function FanConnectQASection({
     }
   };
   
-  if (!items || items.length === 0) {
+  if (!items) {
     return null;
   }
+  
+  const hasItems = items.length > 0;
   
   return (
     <div className="px-4 py-6 space-y-4">
@@ -111,12 +113,21 @@ export function FanConnectQASection({
         </div>
       )}
       
-      {/* Q&A Items */}
-      <div className="space-y-3">
-        {items.map((item) => (
-          <QAItemComponent key={item.id} item={item} />
-        ))}
-      </div>
+      {/* Q&A Items or Empty State */}
+      {hasItems ? (
+        <div className="space-y-3">
+          {items.map((item) => (
+            <QAItemComponent key={item.id} item={item} />
+          ))}
+        </div>
+      ) : (
+        <div className="py-8 flex flex-col items-center justify-center text-center space-y-3 bg-muted/30 rounded-xl border border-border/50">
+          <div className="h-12 w-12 rounded-full bg-muted/50 flex items-center justify-center">
+            <MessageSquarePlus className="h-6 w-6 text-muted-foreground" />
+          </div>
+          <p className="text-muted-foreground">No questions yet. Be the first to ask!</p>
+        </div>
+      )}
     </div>
   );
 }

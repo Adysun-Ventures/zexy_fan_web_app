@@ -8,7 +8,7 @@
 
 import { Content } from '@/services/feed';
 import { ExclusiveContentCard } from '@/components/exclusive-content-card';
-import { Lock } from 'lucide-react';
+import { Lock, ImageOff } from 'lucide-react';
 import { useAuthContext } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 
@@ -27,18 +27,12 @@ export function ExclusivesGridSection({ content }: ExclusivesGridSectionProps) {
   
   // Filter to only locked/premium content
   const exclusiveContent = content.filter(item => item.is_locked || item.is_paid);
-  
-  if (exclusiveContent.length === 0) {
-    return null;
-  }
-  
+
   const handleUnlock = (contentId: number) => {
     if (!isAuthenticated) {
       router.push('/login');
       return;
     }
-    
-    // Navigate to content page which will handle payment
     router.push(`/content/${contentId}`);
   };
   
@@ -50,24 +44,36 @@ export function ExclusivesGridSection({ content }: ExclusivesGridSectionProps) {
         <h2 className="text-xl font-bold">Exclusives</h2>
       </div>
       
-      {/* Content Grid */}
-      <div className="grid grid-cols-2 gap-3">
-        {exclusiveContent.map((item) => (
-          <ExclusiveContentCard
-            key={item.id}
-            content={{
-              id: item.id,
-              thumbnailUrl: item.thumbnail_url,
-              title: item.title,
-              isLocked: item.is_locked,
-              price: item.price,
-              type: item.type,
-            }}
-            onUnlock={handleUnlock}
-            isAuthenticated={isAuthenticated}
-          />
-        ))}
-      </div>
+      {/* Content Grid or Empty State */}
+      {exclusiveContent.length > 0 ? (
+        <div className="grid grid-cols-2 gap-3">
+          {exclusiveContent.map((item) => (
+            <ExclusiveContentCard
+              key={item.id}
+              content={{
+                id: item.id,
+                thumbnailUrl: item.thumbnail_url,
+                title: item.title,
+                isLocked: item.is_locked,
+                price: item.price,
+                type: item.type,
+              }}
+              onUnlock={handleUnlock}
+              isAuthenticated={isAuthenticated}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="py-10 flex flex-col items-center justify-center text-center space-y-3 bg-muted/30 rounded-xl border border-border/50 border-dashed">
+          <div className="h-14 w-14 rounded-full bg-muted/50 flex items-center justify-center">
+            <ImageOff className="h-7 w-7 text-muted-foreground" />
+          </div>
+          <div className="space-y-1">
+            <p className="font-semibold text-sm">No exclusive content yet</p>
+            <p className="text-xs text-muted-foreground">Check back soon — something exciting is coming!</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -8,7 +8,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Check, Crown } from 'lucide-react';
+import { Check, Crown, Clock } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 import { useAuthContext } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
@@ -40,7 +40,31 @@ export function MembershipCardSection({
   const router = useRouter();
   
   if (!plans || plans.length === 0) {
-    return null;
+    return (
+      <div className="px-4 py-6">
+        <Card className="border-2 overflow-hidden opacity-60" style={{ borderColor: 'var(--profile-primary)' }}>
+          <div className="h-2" style={{ background: 'linear-gradient(to right, var(--profile-gradient-start), var(--profile-gradient-end))' }} />
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Crown className="h-6 w-6 text-muted-foreground" />
+              <CardTitle className="text-2xl text-muted-foreground">Membership</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="py-6 flex flex-col items-center justify-center text-center space-y-3">
+              <Clock className="h-10 w-10 text-muted-foreground" />
+              <div className="space-y-1">
+                <p className="font-semibold">Coming Soon</p>
+                <p className="text-sm text-muted-foreground">This creator hasn&apos;t set up membership plans yet.</p>
+              </div>
+            </div>
+            <Button className="w-full h-12 text-base font-semibold" disabled>
+              Coming Soon
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
   
   // Show first plan (primary plan)

@@ -97,7 +97,7 @@ export function MobileCreatorProfile({ username }: MobileCreatorProfileProps) {
                 ) : null;
               
               case 'qa':
-                return qaItems && qaItems.length > 0 ? (
+                return qaItems ? (
                   <FanConnectQASection
                     key={section.id}
                     items={qaItems}
@@ -106,7 +106,7 @@ export function MobileCreatorProfile({ username }: MobileCreatorProfileProps) {
                 ) : null;
               
               case 'exclusives':
-                return content && content.length > 0 ? (
+                return content ? (
                   <ExclusivesGridSection
                     key={section.id}
                     content={content}
@@ -114,7 +114,7 @@ export function MobileCreatorProfile({ username }: MobileCreatorProfileProps) {
                 ) : null;
               
               case 'membership':
-                return plans && plans.length > 0 ? (
+                return plans ? (
                   <MembershipCardSection
                     key={section.id}
                     plans={plans}
