@@ -119,6 +119,7 @@ export function MobileCreatorProfile({ username }: MobileCreatorProfileProps) {
                     key={section.id}
                     plans={plans}
                     isSubscribed={creator.is_subscribed}
+                    creatorName={creator.name || creator.username}
                   />
                 ) : null;
               

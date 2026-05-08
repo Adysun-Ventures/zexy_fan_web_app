@@ -111,4 +111,47 @@ export const subscriptionService = {
 
     await apiClient.post(`/api/v1/fan/subscriptions/${subscriptionId}/cancel`);
   },
+
+  /**
+   * Create a payment intent for subscribing to a plan
+   */
+  createSubscriptionIntent: async (planId: number): Promise<{
+    intent_id: number;
+    gateway_order_id: string;
+    amount: number;
+    currency: string;
+    key_id: string;
+  }> => {
+    if (ENV.IS_MOCK) {
+      await sleep(800);
+      return {
+        intent_id: Math.floor(Math.random() * 10000),
+        gateway_order_id: 'order_mock_' + Date.now(),
+        amount: 299,
+        currency: 'INR',
+        key_id: 'rzp_test_xxxxx',
+      };
+    }
+
+    const response = await apiClient.post('/api/v1/fan/payments/intents', {
+      purpose: 'subscription',
+      reference_id: planId,
+    });
+    return response.data.data;
+  },
+
+  /**
+   * Activate subscription after payment verified
+   */
+  activateSubscription: async (planId: number, gatewayOrderId: string): Promise<{ status: string; subscription_id: number }> => {
+    if (ENV.IS_MOCK) {
+      await sleep(1000);
+      return { status: 'activated', subscription_id: Math.floor(Math.random() * 1000) };
+    }
+
+    const response = await apiClient.post(`/api/v1/fan/subscriptions/${planId}/activate`, {
+      gateway_order_id: gatewayOrderId,
+    });
+    return response.data;
+  },
 };

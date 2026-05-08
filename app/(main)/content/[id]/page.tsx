@@ -47,7 +47,7 @@ export default function ContentDetailPage() {
             </div>
             <div className="flex-1">
               <Link
-                href={`/creator/${content.creator_uid}`}
+                href={`/creator/${content.creator_username || content.creator_uid}`}
                 className="font-semibold hover:underline"
               >
                 {content.creator_name || content.creator_username}

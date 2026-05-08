@@ -96,7 +96,7 @@ export const qaService = {
         params: { limit, offset },
       }
     );
-    return response.data.data;
+    return response.data.data.data;
   },
 
   /**

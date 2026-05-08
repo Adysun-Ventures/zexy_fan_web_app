@@ -25,3 +25,19 @@ export function useCancelSubscription() {
     },
   });
 }
+
+export function useCreateSubscriptionIntent() {
+  return useMutation({
+    mutationFn: (planId: number) => subscriptionService.createSubscriptionIntent(planId),
+  });
+}
+
+export function useActivateSubscription() {
+  return useMutation({
+    mutationFn: ({ planId, gatewayOrderId }: { planId: number; gatewayOrderId: string }) =>
+      subscriptionService.activateSubscription(planId, gatewayOrderId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['subscriptions', 'my'] });
+    },
+  });
+}
