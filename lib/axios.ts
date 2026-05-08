@@ -2,6 +2,9 @@ import axios from 'axios';
 import { ENV } from '@/constants/env';
 
 // Create axios instance
+if (typeof window !== 'undefined') {
+  console.log('[Axios] Initializing with baseURL:', ENV.API_BASE_URL);
+}
 export const apiClient = axios.create({
   baseURL: ENV.API_BASE_URL,
   headers: {
