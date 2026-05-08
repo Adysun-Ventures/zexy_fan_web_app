@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Lock, Play, Image as ImageIcon } from 'lucide-react';
-import { formatCurrency, formatDate } from '@/lib/utils';
+import { formatCurrency, formatDate, getMediaUrl } from '@/lib/utils';
 import type { Content } from '@/services/feed';
 import { PaymentModal } from '@/components/content/payment-modal';
 
@@ -25,8 +25,16 @@ export function ContentCard({ content }: ContentCardProps) {
       <Card className="overflow-hidden">
         <CardHeader className="pb-3">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold">
-              {content.creator_name?.[0] || 'C'}
+            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold overflow-hidden">
+              {content.creator_avatar ? (
+                <img
+                  src={getMediaUrl(content.creator_avatar) || ''}
+                  alt={content.creator_name || content.creator_username}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                content.creator_name?.[0] || 'C'
+              )}
             </div>
             <div className="flex-1">
               <Link

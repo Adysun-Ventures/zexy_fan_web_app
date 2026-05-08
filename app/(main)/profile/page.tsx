@@ -3,6 +3,7 @@
 import { useAuthContext } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { User, Phone, Mail } from 'lucide-react';
+import { getMediaUrl } from '@/lib/utils';
 
 export default function ProfilePage() {
   const { user } = useAuthContext();
@@ -18,8 +19,16 @@ export default function ProfilePage() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-4">
-            <div className="h-20 w-20 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-3xl font-semibold">
-              {user.name?.[0] || user.username?.[0] || 'F'}
+            <div className="h-20 w-20 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-3xl font-semibold overflow-hidden">
+              {user.avatar ? (
+                <img
+                  src={getMediaUrl(user.avatar) || ''}
+                  alt={user.name || user.username || 'User'}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                user.name?.[0] || user.username?.[0] || 'F'
+              )}
             </div>
             <div>
               <CardTitle>{user.name || 'Fan User'}</CardTitle>

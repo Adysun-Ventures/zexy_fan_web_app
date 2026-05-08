@@ -24,3 +24,13 @@ export function formatDate(date: string | Date): string {
 export function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+export function getMediaUrl(path: string | null | undefined): string | null {
+  if (!path) return null;
+  if (path.startsWith('http')) return path;
+  
+  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.zexy.live';
+  // Ensure we don't have double slashes
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+  return `${baseUrl}${cleanPath}`;
+}

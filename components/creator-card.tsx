@@ -9,7 +9,7 @@ import { Creator } from '@/services/feed';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Users, CheckCircle2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn, getMediaUrl } from '@/lib/utils';
 
 interface CreatorCardProps {
   creator: Creator;
@@ -49,15 +49,15 @@ export function CreatorCard({ creator, className }: CreatorCardProps) {
         <div className="relative aspect-square bg-gradient-to-br from-primary/20 to-primary/5">
           {creator.avatar ? (
             <img
-              src={creator.avatar}
-              alt={creator.name}
+              src={getMediaUrl(creator.avatar) || ''}
+              alt={creator.name || creator.username}
               className="w-full h-full object-cover"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
               <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center">
                 <span className="text-4xl font-bold text-primary">
-                  {creator.name.charAt(0)}
+                  {creator.name?.charAt(0) || creator.username?.charAt(0) || '?'}
                 </span>
               </div>
             </div>
