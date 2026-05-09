@@ -71,10 +71,7 @@ export function MobileCreatorProfile({ username }: MobileCreatorProfileProps) {
   
   return (
     <ProfileThemeProvider theme={theme}>
-      <div className="min-h-screen pb-20" style={{
-        background: 'linear-gradient(to bottom right, var(--profile-gradient-start), var(--profile-gradient-end))',
-        backgroundAttachment: 'fixed',
-      }}>
+      <div className="min-h-screen pb-20">
         <div className="min-h-screen bg-background/95 backdrop-blur-sm">
           {/* Render sections in order */}
           {enabledSections.map((section) => {
