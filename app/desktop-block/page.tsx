@@ -25,17 +25,6 @@ export default function DesktopBlockPage() {
           <p className="text-muted-foreground">
             Please open this page on your smartphone or tablet to view the content.
           </p>
-          <div className="pt-4 border-t">
-            <p className="text-sm text-muted-foreground">
-              Scan the QR code below with your mobile device
-            </p>
-            <div className="mt-4 p-4 bg-white rounded-lg inline-block">
-              {/* QR code placeholder - can be implemented with qrcode.react library */}
-              <div className="h-32 w-32 bg-gradient-to-br from-purple-500 to-pink-500 rounded flex items-center justify-center text-white text-xs">
-                QR Code
-              </div>
-            </div>
-          </div>
         </CardContent>
       </Card>
     </div>
