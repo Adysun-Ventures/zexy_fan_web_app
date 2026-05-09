@@ -22,13 +22,8 @@ export default function PublicCreatorProfilePage() {
   const [isChecking, setIsChecking] = useState(true);
   
   useEffect(() => {
-    // Block desktop users
-    if (isDesktop) {
-      router.push('/desktop-block');
-    } else {
-      setIsChecking(false);
-    }
-  }, [isDesktop, router]);
+    setIsChecking(false);
+  }, []);
   
   // Show loading while checking device
   if (isChecking) {

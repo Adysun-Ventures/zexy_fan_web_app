@@ -47,13 +47,8 @@ export default function CreatorsPage() {
   }, [data]);
   
   useEffect(() => {
-    // Block desktop users
-    if (isDesktop) {
-      router.push('/desktop-block');
-    } else {
-      setIsChecking(false);
-    }
-  }, [isDesktop, router]);
+    setIsChecking(false);
+  }, []);
 
   useEffect(() => {
     const node = loadMoreRef.current;
