@@ -13,7 +13,6 @@ import { useDeviceDetection } from '@/hooks/useDeviceDetection';
 import { useCreators } from '@/hooks/useFeed';
 import { CreatorsGrid } from '@/components/creators-grid';
 import { CreatorSearchFilters } from '@/components/creator-search-filters';
-import { Header } from '@/components/layout/header';
 import { Loader2 } from 'lucide-react';
 import { Creator } from '@/services/feed';
 
@@ -46,8 +45,6 @@ export default function CreatorsPage() {
   // Render creators grid for mobile/tablet users
   return (
     <div className="bg-background">
-      <Header />
-
       {/* Creators Grid */}
       <div className="container mx-auto px-4 py-6">
         
