@@ -13,7 +13,7 @@ export function EmptyStatePlaceholder({
   description,
 }: EmptyStatePlaceholderProps) {
   return (
-    <div className="flex min-h-[400px] items-center justify-center">
+    <div className="flex min-h-[220px] items-center justify-center">
       <Card className="w-full max-w-md">
         <CardContent className="pt-6 text-center">
           <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-muted">

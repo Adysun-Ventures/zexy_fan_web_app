@@ -45,7 +45,7 @@ export default function CreatorsPage() {
   
   // Render creators grid for mobile/tablet users
   return (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background">
       <Header />
 
       {/* Creators Grid */}
