@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Creator } from '@/services/feed';
+import { Creator, CreatorFilters } from '@/services/feed';
 import { Check, ChevronDown, Search, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { City } from 'country-state-city';
@@ -34,7 +34,8 @@ const COMBINED_NICHE_OPTIONS = [
 
 interface CreatorSearchFiltersProps {
   creators: Creator[] | undefined;
-  onFilteredCreatorsChange: (creators: Creator[]) => void;
+  resultCount: number;
+  onFiltersChange: (filters: CreatorFilters) => void;
 }
 
 function normalize(value: string | null | undefined): string {
@@ -59,7 +60,8 @@ function formatGenderLabel(gender: GenderValue): string {
 
 export function CreatorSearchFilters({
   creators,
-  onFilteredCreatorsChange,
+  resultCount,
+  onFiltersChange,
 }: CreatorSearchFiltersProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [citySearchQuery, setCitySearchQuery] = useState('');
@@ -109,36 +111,25 @@ export function CreatorSearchFilters({
 
   const genderOptions: Exclude<GenderValue, 'ALL'>[] = ['M', 'F', 'O'];
 
-  const filteredCreators = useMemo(() => {
-    const query = normalize(searchQuery);
-
-    return (creators || []).filter((creator) => {
-      const creatorCity = (creator as Creator & { city?: string | null }).city;
-      const creatorGender = (creator as Creator & { gender?: string | null }).gender;
-
-      const matchQuery =
-        query.length === 0 ||
-        normalize(creator.name).includes(query) ||
-        normalize(creator.username).includes(query) ||
-        normalize(creator.niche).includes(query);
-
-      const matchCity =
-        selectedCity === 'all' || normalize(creatorCity) === normalize(selectedCity);
-
-      const matchGender =
-        selectedGender === 'ALL' ||
-        normalize(creatorGender) === selectedGender.toLowerCase();
-
-      const matchNiche =
-        selectedNiche === 'all' || normalize(creator.niche) === normalize(selectedNiche);
-
-      return matchQuery && matchCity && matchGender && matchNiche;
-    });
-  }, [creators, searchQuery, selectedCity, selectedGender, selectedNiche]);
-
   useEffect(() => {
-    onFilteredCreatorsChange(filteredCreators);
-  }, [filteredCreators, onFilteredCreatorsChange]);
+    const timer = setTimeout(() => {
+      onFiltersChange({
+        search: searchQuery.trim() || undefined,
+        city: selectedCity === 'all' ? undefined : selectedCity,
+        niche: selectedNiche === 'all' ? undefined : selectedNiche,
+        gender:
+          selectedGender === 'ALL'
+            ? undefined
+            : selectedGender === 'M'
+              ? 'male'
+              : selectedGender === 'F'
+                ? 'female'
+                : 'other',
+      });
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, selectedCity, selectedGender, selectedNiche, onFiltersChange]);
 
   useEffect(() => {
     if (openFilter !== 'city') {
@@ -184,7 +175,7 @@ export function CreatorSearchFilters({
       </div>
 
       <p className="text-xs text-muted-foreground">
-        Showing {filteredCreators.length} creator{filteredCreators.length === 1 ? '' : 's'}
+        Showing {resultCount} creator{resultCount === 1 ? '' : 's'}
         {activeFiltersCount > 0 ? ` · ${activeFiltersCount} filter${activeFiltersCount === 1 ? '' : 's'} active` : ''}
       </p>
 

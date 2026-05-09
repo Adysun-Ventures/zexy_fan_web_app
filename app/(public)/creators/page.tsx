@@ -7,22 +7,44 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useDeviceDetection } from '@/hooks/useDeviceDetection';
-import { useCreators } from '@/hooks/useFeed';
+import { useInfiniteCreators } from '@/hooks/useFeed';
 import { CreatorsGrid } from '@/components/creators-grid';
 import { CreatorSearchFilters } from '@/components/creator-search-filters';
 import { Loader2 } from 'lucide-react';
-import { Creator } from '@/services/feed';
+import { Creator, CreatorFilters } from '@/services/feed';
 
 export default function CreatorsPage() {
   const router = useRouter();
   const { isDesktop } = useDeviceDetection();
   const [isChecking, setIsChecking] = useState(true);
-  const [filteredCreators, setFilteredCreators] = useState<Creator[]>([]);
-  
-  const { data: creators, isLoading, error, refetch } = useCreators();
+  const [filters, setFilters] = useState<CreatorFilters>({});
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+
+  const {
+    data,
+    isLoading,
+    error,
+    refetch,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteCreators(filters);
+
+  const creators: Creator[] = useMemo(() => {
+    const pages = data?.pages ?? [];
+    const dedupe = new Map<number, Creator>();
+
+    for (const page of pages) {
+      for (const creator of page.items) {
+        dedupe.set(creator.id, creator);
+      }
+    }
+
+    return Array.from(dedupe.values());
+  }, [data]);
   
   useEffect(() => {
     // Block desktop users
@@ -32,6 +54,28 @@ export default function CreatorsPage() {
       setIsChecking(false);
     }
   }, [isDesktop, router]);
+
+  useEffect(() => {
+    const node = loadMoreRef.current;
+    if (!node) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const isVisible = entries[0]?.isIntersecting;
+        if (isVisible && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { rootMargin: '200px' }
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+
+  const handleFiltersChange = useCallback((nextFilters: CreatorFilters) => {
+    setFilters(nextFilters);
+  }, []);
   
   // Show loading while checking device
   if (isChecking) {
@@ -52,16 +96,32 @@ export default function CreatorsPage() {
         <div className="mb-5">
           <CreatorSearchFilters
             creators={creators}
-            onFilteredCreatorsChange={setFilteredCreators}
+            resultCount={creators.length}
+            onFiltersChange={handleFiltersChange}
           />
         </div>
 
         <CreatorsGrid
-          creators={filteredCreators}
+          creators={creators}
           isLoading={isLoading}
-          error={error}
+          error={error as Error | null}
           refetch={refetch}
         />
+
+        {!isLoading && creators.length > 0 && (
+          <div className="py-6 text-center text-sm text-muted-foreground">
+            {isFetchingNextPage && (
+              <div className="flex items-center justify-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span>Loading more creators...</span>
+              </div>
+            )}
+            {!isFetchingNextPage && hasNextPage && <span>Scroll to load more</span>}
+            {!hasNextPage && <span>No more creators</span>}
+          </div>
+        )}
+
+        <div ref={loadMoreRef} className="h-2 w-full" />
       </div>
       
     </div>

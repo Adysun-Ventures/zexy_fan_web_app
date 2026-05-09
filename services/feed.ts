@@ -16,6 +16,21 @@ export interface Creator {
   is_subscribed: boolean;
 }
 
+export interface CreatorFilters {
+  search?: string;
+  niche?: string;
+  city?: string;
+  gender?: 'male' | 'female' | 'other';
+}
+
+export interface CreatorsPageResponse {
+  items: Creator[];
+  total: number;
+  limit: number;
+  hasMore: boolean;
+  nextCursor: number | null;
+}
+
 export interface Content {
   id: number;
   creator_uid: number;
@@ -273,6 +288,71 @@ export const feedService = {
 
     const response = await apiClient.get('/api/v1/fan/creators');
     return response.data.data.data;
+  },
+
+  getCreatorsPage: async ({
+    cursor = null,
+    limit = 40,
+    filters = {},
+  }: {
+    cursor?: number | null;
+    limit?: number;
+    filters?: CreatorFilters;
+  }): Promise<CreatorsPageResponse> => {
+    if (ENV.IS_MOCK) {
+      await sleep(500);
+      let dataset = [...MOCK_CREATORS];
+
+      if (filters.search) {
+        const q = filters.search.toLowerCase();
+        dataset = dataset.filter(
+          (c) =>
+            c.name?.toLowerCase().includes(q) ||
+            c.username?.toLowerCase().includes(q) ||
+            c.niche?.toLowerCase().includes(q)
+        );
+      }
+
+      if (filters.niche) {
+        dataset = dataset.filter((c) => c.niche?.toLowerCase() === filters.niche?.toLowerCase());
+      }
+
+      const startIndex = cursor
+        ? Math.max(
+            dataset.findIndex((c) => c.id === cursor) + 1,
+            0
+          )
+        : 0;
+      const pageItems = dataset.slice(startIndex, startIndex + limit);
+      const hasMore = startIndex + limit < dataset.length;
+      const nextCursor = hasMore && pageItems.length > 0 ? pageItems[pageItems.length - 1].id : null;
+
+      return {
+        items: pageItems,
+        total: dataset.length,
+        limit,
+        hasMore,
+        nextCursor,
+      };
+    }
+
+    const params: Record<string, string | number> = { limit };
+    if (cursor) params.cursor = cursor;
+    if (filters.search) params.search = filters.search;
+    if (filters.niche) params.niche = filters.niche;
+    if (filters.city) params.city = filters.city;
+    if (filters.gender) params.gender = filters.gender;
+
+    const response = await apiClient.get('/api/v1/fan/creators', { params });
+    const payload = response.data.data;
+
+    return {
+      items: payload.data,
+      total: payload.total,
+      limit: payload.limit,
+      hasMore: payload.has_more,
+      nextCursor: payload.next_cursor,
+    };
   },
 
   /**

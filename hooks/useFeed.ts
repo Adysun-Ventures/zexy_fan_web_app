@@ -1,10 +1,28 @@
-import { useQuery } from '@tanstack/react-query';
-import { feedService } from '@/services/feed';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { CreatorFilters, feedService } from '@/services/feed';
 
 export function useCreators() {
   return useQuery({
     queryKey: ['creators'],
     queryFn: () => feedService.getCreators(),
+  });
+}
+
+export function useInfiniteCreators(filters: CreatorFilters) {
+  return useInfiniteQuery({
+    queryKey: ['creators', 'infinite', filters],
+    queryFn: ({ pageParam }) =>
+      feedService.getCreatorsPage({
+        cursor: (pageParam as number | null) ?? null,
+        limit: 40,
+        filters,
+      }),
+    initialPageParam: null as number | null,
+    getNextPageParam: (lastPage) => (lastPage.hasMore ? lastPage.nextCursor : undefined),
+    staleTime: 30_000,
+    gcTime: 5 * 60_000,
+    retry: 2,
+    refetchOnWindowFocus: false,
   });
 }
 
