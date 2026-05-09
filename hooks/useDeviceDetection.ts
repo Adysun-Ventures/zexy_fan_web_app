@@ -30,14 +30,14 @@ interface DeviceInfo {
 export function useDeviceDetection(): DeviceInfo {
   const [deviceInfo, setDeviceInfo] = useState<DeviceInfo>(() => {
     if (typeof window === 'undefined') {
-      return { isMobile: false, isTablet: false, isDesktop: true, width: 1920 };
+      return { isMobile: false, isTablet: false, isDesktop: true, width: 1440 };
     }
     
     const width = window.innerWidth;
     return {
       isMobile: width < 768,
-      isTablet: width >= 768 && width <= 1024,
-      isDesktop: width > 1024,
+      isTablet: width >= 768 && width <= 1280,
+      isDesktop: width > 1280,
       width,
     };
   });
@@ -47,8 +47,8 @@ export function useDeviceDetection(): DeviceInfo {
       const width = window.innerWidth;
       setDeviceInfo({
         isMobile: width < 768,
-        isTablet: width >= 768 && width <= 1024,
-        isDesktop: width > 1024,
+        isTablet: width >= 768 && width <= 1280,
+        isDesktop: width > 1280,
         width,
       });
     }
