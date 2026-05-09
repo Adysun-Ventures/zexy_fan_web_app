@@ -165,7 +165,7 @@ export default function LoginPage() {
                     {otp.map((digit, index) => (
                       <input
                         key={index}
-                        ref={(el) => (otpInputRefs.current[index] = el)}
+                        ref={(el) => { otpInputRefs.current[index] = el; }}
                         type="text"
                         inputMode="numeric"
                         autoComplete="one-time-code"
