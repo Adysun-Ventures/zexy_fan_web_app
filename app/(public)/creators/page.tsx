@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation';
 import { useDeviceDetection } from '@/hooks/useDeviceDetection';
 import { useCreators } from '@/hooks/useFeed';
 import { CreatorsGrid } from '@/components/creators-grid';
+import { Header } from '@/components/layout/header';
 import { Loader2 } from 'lucide-react';
 
 export default function CreatorsPage() {
@@ -42,18 +43,17 @@ export default function CreatorsPage() {
   // Render creators grid for mobile/tablet users
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b">
-        <div className="container mx-auto px-4 py-4">
+      <Header />
+
+      {/* Creators Grid */}
+      <div className="container mx-auto px-4 py-6">
+        <div className="mb-4">
           <h1 className="text-2xl font-bold">Discover Creators</h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="mt-1 text-sm text-muted-foreground">
             Browse and connect with your favorite creators
           </p>
         </div>
-      </div>
-      
-      {/* Creators Grid */}
-      <div className="container mx-auto px-4 py-6">
+
         <CreatorsGrid
           creators={creators}
           isLoading={isLoading}

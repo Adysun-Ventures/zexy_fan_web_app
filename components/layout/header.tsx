@@ -1,39 +1,132 @@
 'use client';
 
+import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useState } from 'react';
 import { useAuthContext, useLogout } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
-import { LogOut, User } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { CreditCard, Home, LogOut, Menu, MessageCircle, User, X } from 'lucide-react';
+
+const navItems = [
+  { href: '/feed', label: 'Feed', icon: Home },
+  { href: '/subscriptions', label: 'Subscriptions', icon: CreditCard },
+  { href: '/messages', label: 'Messages', icon: MessageCircle },
+  { href: '/profile', label: 'Profile', icon: User },
+];
 
 export function Header() {
   const { user } = useAuthContext();
   const logout = useLogout();
+  const pathname = usePathname();
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto flex h-14 items-center justify-between px-4">
-        <div className="flex items-center gap-2">
-          <h1 className="text-xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">
-            Zexy
-          </h1>
-        </div>
+    <>
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container mx-auto relative flex h-14 items-center justify-between px-4">
+          <Link href="/feed" className="flex items-center gap-2">
+            <Image
+              src="/zexy_z_letter_logo_nobg.png"
+              alt="Zexy logo"
+              width={28}
+              height={28}
+              priority
+              className="h-7 w-7 object-contain"
+            />
+          </Link>
 
-        <div className="flex items-center gap-4">
-          {user && (
-            <div className="hidden md:flex items-center gap-2 text-sm">
-              <User className="h-4 w-4" />
-              <span>{user.name || user.username || 'Fan'}</span>
-            </div>
-          )}
+          <div className="pointer-events-none absolute left-1/2 -translate-x-1/2">
+            <h1 className="text-lg font-semibold tracking-[0.2em]">ZEXY</h1>
+          </div>
+
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => logout.mutate()}
-            disabled={logout.isPending}
+            aria-label="Open menu"
+            onClick={() => setIsDrawerOpen(true)}
           >
-            <LogOut className="h-4 w-4" />
+            <Menu className="h-5 w-5" />
           </Button>
         </div>
-      </div>
-    </header>
+      </header>
+
+      <div
+        className={cn(
+          'fixed inset-0 z-[60] bg-black/40 transition-opacity',
+          isDrawerOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
+        )}
+        onClick={() => setIsDrawerOpen(false)}
+      />
+
+      <aside
+        className={cn(
+          'fixed right-0 top-0 z-[70] h-full w-72 max-w-[85vw] border-l bg-background shadow-xl transition-transform duration-300',
+          isDrawerOpen ? 'translate-x-0' : 'translate-x-full'
+        )}
+        aria-hidden={!isDrawerOpen}
+      >
+        <div className="flex items-center justify-between border-b px-4 py-4">
+          <div className="flex items-center gap-2">
+            <Image
+              src="/zexy_z_letter_logo_nobg.png"
+              alt="Zexy logo"
+              width={24}
+              height={24}
+              className="h-6 w-6 object-contain"
+            />
+            <span className="text-sm font-semibold tracking-[0.15em]">ZEXY</span>
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Close menu"
+            onClick={() => setIsDrawerOpen(false)}
+          >
+            <X className="h-5 w-5" />
+          </Button>
+        </div>
+
+        <nav className="px-2 py-3">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = pathname === item.href;
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setIsDrawerOpen(false)}
+                className={cn(
+                  'flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors',
+                  isActive ? 'bg-accent text-foreground' : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                )}
+              >
+                <Icon className="h-4 w-4" />
+                <span>{item.label}</span>
+              </Link>
+            );
+          })}
+        </nav>
+
+        {user && (
+          <div className="border-t px-2 py-3">
+            <Button
+              variant="ghost"
+              className="w-full justify-start gap-3"
+              onClick={() => {
+                logout.mutate();
+                setIsDrawerOpen(false);
+              }}
+              disabled={logout.isPending}
+            >
+              <LogOut className="h-4 w-4" />
+              Logout
+            </Button>
+          </div>
+        )}
+      </aside>
+    </>
   );
 }
