@@ -12,13 +12,16 @@ import { useRouter } from 'next/navigation';
 import { useDeviceDetection } from '@/hooks/useDeviceDetection';
 import { useCreators } from '@/hooks/useFeed';
 import { CreatorsGrid } from '@/components/creators-grid';
+import { CreatorSearchFilters } from '@/components/creator-search-filters';
 import { Header } from '@/components/layout/header';
 import { Loader2 } from 'lucide-react';
+import { Creator } from '@/services/feed';
 
 export default function CreatorsPage() {
   const router = useRouter();
   const { isDesktop } = useDeviceDetection();
   const [isChecking, setIsChecking] = useState(true);
+  const [filteredCreators, setFilteredCreators] = useState<Creator[]>([]);
   
   const { data: creators, isLoading, error, refetch } = useCreators();
   
@@ -47,20 +50,23 @@ export default function CreatorsPage() {
 
       {/* Creators Grid */}
       <div className="container mx-auto px-4 py-6">
-        <div className="mb-4">
-          <h1 className="text-2xl font-bold">Discover Creators</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Browse and connect with your favorite creators
-          </p>
+        
+
+        <div className="mb-5">
+          <CreatorSearchFilters
+            creators={creators}
+            onFilteredCreatorsChange={setFilteredCreators}
+          />
         </div>
 
         <CreatorsGrid
-          creators={creators}
+          creators={filteredCreators}
           isLoading={isLoading}
           error={error}
           refetch={refetch}
         />
       </div>
+      
     </div>
   );
 }

@@ -11,7 +11,8 @@ import { Creator } from '@/services/feed';
 import { CreatorCard } from '@/components/creator-card';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, AlertCircle } from 'lucide-react';
+import { EmptyStatePlaceholder } from '@/components/ui/empty-state-placeholder';
+import { Loader2, AlertCircle, Users } from 'lucide-react';
 
 interface CreatorsGridProps {
   creators?: Creator[];
@@ -89,13 +90,11 @@ export function CreatorsGrid({ creators, isLoading, error, refetch }: CreatorsGr
   // Empty state
   if (!creators || creators.length === 0) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Card className="max-w-md w-full">
-          <CardContent className="pt-6 text-center">
-            <p className="text-muted-foreground">No creators found</p>
-          </CardContent>
-        </Card>
-      </div>
+      <EmptyStatePlaceholder
+        icon={Users}
+        title="No creators found"
+        description="Try updating your search or filters."
+      />
     );
   }
 
