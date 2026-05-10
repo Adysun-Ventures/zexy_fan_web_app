@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useRef, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useSendOTP, useVerifyOTP } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,8 +10,15 @@ import { toast } from 'sonner';
 import { Loader2, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export default function LoginPage() {
+function safeInternalPath(raw: string | null): string | null {
+  if (!raw || !raw.startsWith('/')) return null;
+  if (raw.startsWith('//')) return null;
+  return raw;
+}
+
+function LoginPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [step, setStep] = useState<'phone' | 'otp'>('phone');
   const [mobile, setMobile] = useState('');
   const [otp, setOtp] = useState(['', '', '', '']);
@@ -53,7 +60,8 @@ export default function LoginPage() {
     try {
       await verifyOTP.mutateAsync({ mobile, otp: otpCode, role: 'fan' });
       toast.success('Login successful!');
-      router.push('/feed');
+      const next = safeInternalPath(searchParams.get('next'));
+      router.push(next ?? '/feed');
     } catch (error: any) {
       toast.error(error.response?.data?.error?.message || 'Invalid OTP');
       setOtp(['', '', '', '']);
@@ -209,5 +217,19 @@ export default function LoginPage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-[#09090b]">
+          <Loader2 className="h-10 w-10 animate-spin text-purple-500" />
+        </div>
+      }
+    >
+      <LoginPageContent />
+    </Suspense>
   );
 }

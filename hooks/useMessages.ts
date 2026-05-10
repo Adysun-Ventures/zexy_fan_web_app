@@ -1,11 +1,20 @@
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { messageService } from '@/services/messages';
 import { queryClient } from '@/lib/queryClient';
+import { useAuthContext } from '@/hooks/useAuth';
+import { mapMessageToConversationPreview } from '@/lib/message-conversations';
 
 export function useConversations() {
+  const { user } = useAuthContext();
+
   return useQuery({
-    queryKey: ['conversations'],
-    queryFn: () => messageService.getConversations(),
+    queryKey: ['conversations', user?.id],
+    queryFn: async () => {
+      const rows = await messageService.getConversations();
+      if (!user) return [];
+      return rows.map((m) => mapMessageToConversationPreview(m, user.id));
+    },
+    enabled: !!user,
   });
 }
 

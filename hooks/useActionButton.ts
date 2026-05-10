@@ -11,23 +11,29 @@ import { useRouter } from 'next/navigation';
 import { ActionButton } from '@/types/creator-profile';
 import { toast } from 'sonner';
 
+export interface UseActionButtonOptions {
+  /** When set, chat buttons open `/messages/{creatorId}` instead of raw `action`. */
+  creatorId?: number;
+}
+
 /**
  * Hook for handling action button clicks
- * 
- * @returns Handler function for action buttons
- * 
+ *
  * @example
- * const { handleButtonClick } = useActionButton();
- * <button onClick={() => handleButtonClick(button)}>Click</button>
+ * const { handleButtonClick } = useActionButton({ creatorId: creator.id });
  */
-export function useActionButton() {
+export function useActionButton(options?: UseActionButtonOptions) {
   const { isAuthenticated } = useAuthContext();
   const router = useRouter();
+  const creatorId = options?.creatorId;
 
   const handleButtonClick = (button: ActionButton) => {
-    // Check authentication for protected actions
     if (button.type === 'chat' && !isAuthenticated) {
-      router.push('/login');
+      const chatPath =
+        creatorId != null ? `/messages/${creatorId}` : button.action.startsWith('/')
+          ? button.action
+          : '/messages';
+      router.push(`/login?next=${encodeURIComponent(chatPath)}`);
       return;
     }
 
@@ -38,10 +44,16 @@ export function useActionButton() {
         window.location.href = `mailto:${button.action}`;
         break;
 
-      case 'chat':
-        // Navigate to chat
-        router.push(button.action);
+      case 'chat': {
+        if (creatorId != null) {
+          router.push(`/messages/${creatorId}`);
+        } else if (button.action && button.action !== 'chat') {
+          router.push(button.action.startsWith('/') ? button.action : `/${button.action}`);
+        } else {
+          router.push('/messages');
+        }
         break;
+      }
 
       case 'custom_link':
         // Open external link in new tab

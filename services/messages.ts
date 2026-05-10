@@ -15,6 +15,7 @@ export interface Message {
   sender_avatar: string | null;
   receiver_name: string | null;
   receiver_username: string | null;
+  receiver_avatar: string | null;
   body: string;
   message_type: 'text' | 'image' | 'video' | 'audio' | 'tip_demand';
   media_url: string | null;
@@ -41,15 +42,28 @@ export interface Conversation {
 // MOCK DATA
 // ============================================================================
 
-const MOCK_CONVERSATIONS: Conversation[] = [
+/** Latest-message rows as returned by the API (same shape as thread messages). */
+const MOCK_CONVERSATION_MESSAGES: Message[] = [
   {
-    other_user_id: 2,
-    other_user_name: 'Mike Chen',
-    other_user_username: 'creator_two',
-    other_user_avatar: null,
-    last_message: 'Thanks for subscribing!',
-    last_message_at: new Date(Date.now() - 3600000).toISOString(),
-    unread_count: 1,
+    id: 100,
+    sender_uid: 2,
+    receiver_uid: 1,
+    sender_name: 'Mike Chen',
+    sender_username: 'creator_two',
+    sender_avatar: null,
+    receiver_name: 'John Doe',
+    receiver_username: 'fan_user',
+    receiver_avatar: null,
+    body: 'Thanks for subscribing!',
+    message_type: 'text',
+    media_url: null,
+    is_paid: false,
+    price: 0,
+    is_unlocked: true,
+    tip_amount: null,
+    tip_paid: false,
+    created_at: new Date(Date.now() - 3600000).toISOString(),
+    read_at: null,
   },
 ];
 
@@ -63,6 +77,7 @@ const MOCK_MESSAGES: Message[] = [
     sender_avatar: null,
     receiver_name: 'John Doe',
     receiver_username: 'fan_user',
+    receiver_avatar: null,
     body: 'Thanks for subscribing!',
     message_type: 'text',
     media_url: null,
@@ -81,13 +96,11 @@ const MOCK_MESSAGES: Message[] = [
 // ============================================================================
 
 export const messageService = {
-  /**
-   * Get conversations list
-   */
-  getConversations: async (): Promise<Conversation[]> => {
+  /** Latest Message per thread (API: GET fan/messages/conversations). */
+  getConversations: async (): Promise<Message[]> => {
     if (ENV.IS_MOCK) {
       await sleep(600);
-      return MOCK_CONVERSATIONS;
+      return MOCK_CONVERSATION_MESSAGES;
     }
 
     const response = await apiClient.get('/api/v1/fan/messages/conversations');
@@ -122,6 +135,7 @@ export const messageService = {
         sender_avatar: null,
         receiver_name: 'Creator',
         receiver_username: 'creator',
+        receiver_avatar: null,
         body,
         message_type: 'text',
         media_url: null,

@@ -49,6 +49,15 @@ export function useCreatorByUsername(username: string) {
   });
 }
 
+/** Username or numeric id (API resolves both). */
+export function useCreatorByIdentifier(identifier: string | undefined) {
+  return useQuery({
+    queryKey: ['creator', 'identifier', identifier],
+    queryFn: () => feedService.getCreatorByUsername(identifier!),
+    enabled: !!identifier,
+  });
+}
+
 export function useCreatorContentByUsername(username: string) {
   return useQuery({
     queryKey: ['creator', 'username', username, 'content'],

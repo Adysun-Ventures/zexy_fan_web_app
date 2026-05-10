@@ -90,6 +90,7 @@ export function MobileCreatorProfile({ username }: MobileCreatorProfileProps) {
                   <ActionButtonsSection
                     key={section.id}
                     buttons={config.actionButtons}
+                    creatorId={creator.id}
                   />
                 ) : null;
               

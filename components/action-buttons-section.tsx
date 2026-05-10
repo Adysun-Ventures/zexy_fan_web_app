@@ -13,6 +13,8 @@ import { Mail, MessageCircle, ExternalLink, Send } from 'lucide-react';
 
 interface ActionButtonsSectionProps {
   buttons: ActionButton[];
+  /** Routes "Chat" to `/messages/{creatorId}` when provided. */
+  creatorId?: number;
 }
 
 /**
@@ -34,8 +36,8 @@ function getIcon(iconName?: string) {
  * 
  * @param buttons - Array of action button configurations
  */
-export function ActionButtonsSection({ buttons }: ActionButtonsSectionProps) {
-  const { handleButtonClick } = useActionButton();
+export function ActionButtonsSection({ buttons, creatorId }: ActionButtonsSectionProps) {
+  const { handleButtonClick } = useActionButton({ creatorId });
   
   if (!buttons || buttons.length === 0) {
     return null;
