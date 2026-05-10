@@ -11,10 +11,35 @@ import { Button } from '@/components/ui/button';
 import { useActionButton } from '@/hooks/useActionButton';
 import { Mail, MessageCircle, ExternalLink, Send } from 'lucide-react';
 
+const DEFAULT_CHAT_BUTTON: ActionButton = {
+  id: 'message-creator-subscribed',
+  label: 'Message',
+  type: 'chat',
+  action: 'chat',
+  icon: 'MessageCircle',
+  style: 'secondary',
+};
+
+function buildVisibleButtons(
+  buttons: ActionButton[],
+  isSubscribed: boolean | undefined
+): ActionButton[] {
+  const filtered = buttons.filter(
+    (b) => b.type !== 'chat' || isSubscribed === true
+  );
+  const hasChat = filtered.some((b) => b.type === 'chat');
+  if (isSubscribed === true && !hasChat) {
+    return [DEFAULT_CHAT_BUTTON, ...filtered];
+  }
+  return filtered;
+}
+
 interface ActionButtonsSectionProps {
   buttons: ActionButton[];
   /** Routes "Chat" to `/messages/{creatorId}` when provided. */
   creatorId?: number;
+  /** Only subscribers can message creators (API enforces too). */
+  isSubscribed?: boolean;
 }
 
 /**
@@ -36,16 +61,22 @@ function getIcon(iconName?: string) {
  * 
  * @param buttons - Array of action button configurations
  */
-export function ActionButtonsSection({ buttons, creatorId }: ActionButtonsSectionProps) {
+export function ActionButtonsSection({
+  buttons,
+  creatorId,
+  isSubscribed,
+}: ActionButtonsSectionProps) {
   const { handleButtonClick } = useActionButton({ creatorId });
-  
-  if (!buttons || buttons.length === 0) {
+
+  const visible = buildVisibleButtons(buttons || [], isSubscribed);
+
+  if (!visible.length) {
     return null;
   }
-  
+
   return (
     <div className="px-4 py-6 space-y-3">
-      {buttons.map((button) => {
+      {visible.map((button) => {
         const Icon = getIcon(button.icon);
         const variant = button.style === 'primary' ? 'default' : 
                        button.style === 'secondary' ? 'secondary' : 

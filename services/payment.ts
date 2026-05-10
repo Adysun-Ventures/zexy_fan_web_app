@@ -55,7 +55,7 @@ export const paymentService = {
       };
     }
 
-    const response = await apiClient.post('/api/v1/common/payments/create-intent', data);
+    const response = await apiClient.post('/api/v1/fan/payments/intents', data);
     return response.data.data;
   },
 
@@ -73,7 +73,7 @@ export const paymentService = {
       };
     }
 
-    const response = await apiClient.post('/api/v1/common/payments/verify', data);
+    const response = await apiClient.post('/api/v1/fan/payments/intents/verify', data);
     return response.data.data;
   },
 };

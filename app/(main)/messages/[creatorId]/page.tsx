@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { useAuthContext } from '@/hooks/useAuth';
 import { useCreatorByIdentifier } from '@/hooks/useFeed';
 import { useMessageThread, useSendMessage } from '@/hooks/useMessages';
+import { TipDemandMessage } from '@/components/messages/tip-demand-message';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
@@ -88,6 +89,17 @@ export default function MessageThreadPage() {
           )}
         {messages?.map((m) => {
           const mine = !!user && m.sender_uid === user.id;
+          if (m.message_type === 'tip_demand') {
+            return (
+              <TipDemandMessage
+                key={m.id}
+                message={m}
+                creatorId={creatorId}
+                creatorDisplayName={displayName}
+                mine={mine}
+              />
+            );
+          }
           return (
             <div key={m.id} className={cn('flex', mine ? 'justify-end' : 'justify-start')}>
               <div

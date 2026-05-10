@@ -91,8 +91,19 @@ export function MobileCreatorProfile({ username }: MobileCreatorProfileProps) {
                     key={section.id}
                     buttons={config.actionButtons}
                     creatorId={creator.id}
+                    isSubscribed={creator.is_subscribed}
                   />
-                ) : null;
+                ) : (
+                  /* Config can omit action section; still show Message when subscribed */
+                  creator.is_subscribed ? (
+                    <ActionButtonsSection
+                      key={`${section.id}-subscribed-chat`}
+                      buttons={[]}
+                      creatorId={creator.id}
+                      isSubscribed
+                    />
+                  ) : null
+                );
               
               case 'qa':
                 return qaItems ? (

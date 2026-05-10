@@ -1,6 +1,7 @@
 import { apiClient } from '@/lib/axios';
 import { ENV } from '@/constants/env';
 import { sleep } from '@/lib/utils';
+import type { CreateIntentResponse } from '@/services/payment';
 
 // ============================================================================
 // TYPES
@@ -24,6 +25,7 @@ export interface Message {
   is_unlocked: boolean;
   tip_amount: number | null;
   tip_paid: boolean;
+  tip_transaction_id?: number | null;
   created_at: string;
   read_at: string | null;
 }
@@ -166,5 +168,26 @@ export const messageService = {
     }
 
     await apiClient.post(`/api/v1/common/messages/${messageId}/read`);
+  },
+
+  /**
+   * Razorpay order intent for paying a creator's tip_demand DM (see POST fan/messages/tip-demands/...).
+   */
+  createTipDemandIntent: async (messageId: number): Promise<CreateIntentResponse> => {
+    if (ENV.IS_MOCK) {
+      await sleep(500);
+      return {
+        intent_id: Math.floor(Math.random() * 100000),
+        gateway_order_id: 'order_tip_mock_' + Date.now(),
+        amount: 99,
+        currency: 'INR',
+        key_id: ENV.RAZORPAY_KEY_ID,
+      };
+    }
+
+    const response = await apiClient.post(
+      `/api/v1/fan/messages/tip-demands/${messageId}/intents`
+    );
+    return response.data.data;
   },
 };
