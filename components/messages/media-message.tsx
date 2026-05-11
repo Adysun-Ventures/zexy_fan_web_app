@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import type { Message } from '@/services/messages';
 import { messageService } from '@/services/messages';
 import { cn } from '@/lib/utils';
-import { Loader2, X } from 'lucide-react';
+import { Loader2, Play, Volume2, X } from 'lucide-react';
 
 interface MediaMessageProps {
   message: Message;
@@ -22,6 +22,9 @@ export function MediaMessage({ message: m, mine, apiBaseUrl }: MediaMessageProps
   const [loading, setLoading] = useState(false);
   const [failed, setFailed] = useState(false);
   const [viewerOpen, setViewerOpen] = useState(false);
+  const [videoOpen, setVideoOpen] = useState(false);
+  const [audioOpen, setAudioOpen] = useState(false);
+  const [thumbFailed, setThumbFailed] = useState(false);
 
   const mediaUrl = m.media_url || '';
   const needsSigned = useMemo(() => mediaUrl.startsWith('/media/protected/'), [mediaUrl]);
@@ -60,6 +63,9 @@ export function MediaMessage({ message: m, mine, apiBaseUrl }: MediaMessageProps
   }, [m.id, mediaUrl, needsSigned]);
 
   const urlToUse = needsSigned ? signedUrl || '' : directUrl;
+  const thumb = m.media_thumbnail_url
+    ? resolveDirectUrl(apiBaseUrl, m.media_thumbnail_url)
+    : '';
 
   return (
     <div className={cn('flex', mine ? 'justify-end' : 'justify-start')}>
@@ -118,36 +124,134 @@ export function MediaMessage({ message: m, mine, apiBaseUrl }: MediaMessageProps
                     alt={m.body || 'Image'}
                     className="rounded-xl max-h-[90vh] w-auto object-contain select-none"
                   />
-                  <div className="mt-3 flex items-center justify-end gap-2">
-                    <a
-                      href={urlToUse}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-xs text-white/90 underline underline-offset-4"
-                    >
-                      Open in new tab
-                    </a>
-                    <a
-                      href={urlToUse}
-                      download
-                      className="text-xs text-white/90 underline underline-offset-4"
-                    >
-                      Download
-                    </a>
-                  </div>
                 </div>
               </div>
             ) : null}
           </>
         ) : m.message_type === 'video' ? (
-          <video
-            src={urlToUse}
-            controls
-            playsInline
-            className="rounded-xl max-h-[360px] w-full"
-          />
+          <>
+            <button
+              type="button"
+              className={cn(
+                'rounded-xl border border-border/60 overflow-hidden',
+                mine ? 'bg-white/10 text-white' : 'bg-background/60'
+              )}
+              onClick={() => setVideoOpen(true)}
+              aria-label="Open video player"
+              disabled={!urlToUse}
+            >
+              <div
+                className={cn(
+                  'relative w-[220px] sm:w-[250px] aspect-[9/16] max-h-[360px]',
+                  mine ? 'bg-white/10' : 'bg-muted'
+                )}
+              >
+                {thumb && !thumbFailed ? (
+                  <img
+                    src={thumb}
+                    alt="Video thumbnail"
+                    className="absolute inset-0 h-full w-full object-cover"
+                    loading="lazy"
+                    onError={() => setThumbFailed(true)}
+                  />
+                ) : null}
+                <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/20 to-black/60" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="h-14 w-14 rounded-full bg-black/60 border border-white/20 flex items-center justify-center">
+                    <Play className="h-7 w-7 text-white" />
+                  </div>
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 px-3 py-2 flex items-end justify-between gap-2">
+                  <div className="min-w-0 text-left">
+                    <p className="text-white text-sm font-semibold leading-tight">Video message</p>
+                    <p className="text-white/80 text-xs truncate">Tap to play</p>
+                  </div>
+                  <span className="text-white/80 text-[10px] uppercase tracking-wide">Full screen</span>
+                </div>
+              </div>
+            </button>
+            {videoOpen && urlToUse ? (
+              <div
+                className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+                onClick={() => setVideoOpen(false)}
+                role="dialog"
+                aria-modal="true"
+              >
+                <div
+                  className="relative w-full max-w-[min(1100px,95vw)]"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <button
+                    type="button"
+                    className="absolute -top-3 -right-3 h-10 w-10 rounded-full bg-background/90 border border-border shadow flex items-center justify-center"
+                    onClick={() => setVideoOpen(false)}
+                    aria-label="Close video player"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                  <video
+                    src={urlToUse}
+                    controls
+                    autoPlay
+                    playsInline
+                    className="rounded-xl w-full max-h-[85vh] bg-black"
+                  />
+                </div>
+              </div>
+            ) : null}
+          </>
         ) : (
-          <audio src={urlToUse} controls className="w-full" />
+          <>
+            <button
+              type="button"
+              className={cn(
+                'w-full rounded-xl border border-border/60 px-4 py-3 flex items-center justify-between gap-3',
+                mine ? 'bg-white/10 text-white' : 'bg-background/60'
+              )}
+              onClick={() => setAudioOpen(true)}
+              aria-label="Open audio player"
+              disabled={!urlToUse}
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <div className={cn('h-10 w-10 rounded-full flex items-center justify-center', mine ? 'bg-white/15' : 'bg-muted')}>
+                  <Volume2 className={cn('h-5 w-5', mine ? 'text-white' : 'text-foreground')} />
+                </div>
+                <div className="min-w-0 text-left">
+                  <p className={cn('text-sm font-semibold leading-tight', mine ? 'text-white' : 'text-foreground')}>
+                    Audio message
+                  </p>
+                  <p className={cn('text-xs truncate', mine ? 'text-white/80' : 'text-muted-foreground')}>
+                    Tap to play full screen
+                  </p>
+                </div>
+              </div>
+              <span className={cn('text-xs', mine ? 'text-white/80' : 'text-muted-foreground')}>Play</span>
+            </button>
+            {audioOpen && urlToUse ? (
+              <div
+                className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+                onClick={() => setAudioOpen(false)}
+                role="dialog"
+                aria-modal="true"
+              >
+                <div
+                  className="relative w-full max-w-[min(720px,95vw)] rounded-2xl bg-background border border-border p-4"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <button
+                    type="button"
+                    className="absolute -top-3 -right-3 h-10 w-10 rounded-full bg-background border border-border shadow flex items-center justify-center"
+                    onClick={() => setAudioOpen(false)}
+                    aria-label="Close audio player"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                  <p className="font-semibold mb-2">Audio message</p>
+                  <audio src={urlToUse} controls autoPlay className="w-full" />
+                </div>
+              </div>
+            ) : null}
+          </>
         )}
 
         {m.body?.trim() ? (

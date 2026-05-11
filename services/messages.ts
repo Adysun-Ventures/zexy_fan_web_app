@@ -20,6 +20,7 @@ export interface Message {
   body: string;
   message_type: 'text' | 'image' | 'video' | 'audio' | 'tip_demand';
   media_url: string | null;
+  media_thumbnail_url?: string | null;
   is_paid: boolean;
   price: number;
   is_unlocked: boolean;
