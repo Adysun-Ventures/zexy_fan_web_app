@@ -20,6 +20,7 @@ import { BottomNavigation } from '@/components/bottom-navigation';
 import { Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { getDefaultTheme } from '@/lib/validation/profile-config';
+import { useRouter } from 'next/navigation';
 
 interface MobileCreatorProfileProps {
   username: string;
@@ -31,6 +32,7 @@ interface MobileCreatorProfileProps {
  * @param username - Creator username
  */
 export function MobileCreatorProfile({ username }: MobileCreatorProfileProps) {
+  const router = useRouter();
   const { data: creator, isLoading: creatorLoading, error: creatorError } = useCreatorByUsername(username);
   const { data: config, isLoading: configLoading } = useCreatorProfileConfig(username);
   const { data: content, isLoading: contentLoading } = useCreatorContentByUsername(username);
@@ -69,6 +71,18 @@ export function MobileCreatorProfile({ username }: MobileCreatorProfileProps) {
     .filter(s => s.enabled)
     .sort((a, b) => a.order - b.order);
   const hasActionsSection = enabledSections.some((s) => s.type === 'actions');
+  const hasMembershipSection = enabledSections.some((s) => s.type === 'membership');
+
+  const handleSubscribeClick = () => {
+    const membershipSection = document.getElementById('membership-section');
+    if (membershipSection) {
+      membershipSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const handleMessageClick = () => {
+    router.push(`/messages/${creator.id}`);
+  };
   
   return (
     <ProfileThemeProvider theme={theme}>
@@ -83,6 +97,10 @@ export function MobileCreatorProfile({ username }: MobileCreatorProfileProps) {
                     key={section.id}
                     creator={creator}
                     config={config.intro}
+                    showSubscribeButton={!creator.is_subscribed && hasMembershipSection}
+                    onSubscribeClick={handleSubscribeClick}
+                    showMessageButton={creator.is_subscribed}
+                    onMessageClick={handleMessageClick}
                   />
                 ) : null;
               
@@ -125,12 +143,13 @@ export function MobileCreatorProfile({ username }: MobileCreatorProfileProps) {
               
               case 'membership':
                 return plans ? (
-                  <MembershipCardSection
-                    key={section.id}
-                    plans={plans}
-                    isSubscribed={creator.is_subscribed}
-                    creatorName={creator.name || creator.username}
-                  />
+                  <div key={section.id} id="membership-section">
+                    <MembershipCardSection
+                      plans={plans}
+                      isSubscribed={creator.is_subscribed}
+                      creatorName={creator.name || creator.username}
+                    />
+                  </div>
                 ) : null;
               
               default:

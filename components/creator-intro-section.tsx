@@ -9,10 +9,15 @@
 import { IntroConfig } from '@/types/creator-profile';
 import { Creator } from '@/services/feed';
 import { getMediaUrl } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 
 interface CreatorIntroSectionProps {
   creator: Creator;
   config: IntroConfig;
+  showSubscribeButton?: boolean;
+  onSubscribeClick?: () => void;
+  showMessageButton?: boolean;
+  onMessageClick?: () => void;
 }
 
 /**
@@ -21,7 +26,14 @@ interface CreatorIntroSectionProps {
  * @param creator - Creator data
  * @param config - Intro section configuration
  */
-export function CreatorIntroSection({ creator, config }: CreatorIntroSectionProps) {
+export function CreatorIntroSection({
+  creator,
+  config,
+  showSubscribeButton = false,
+  onSubscribeClick,
+  showMessageButton = false,
+  onMessageClick,
+}: CreatorIntroSectionProps) {
   const avatarStyleClasses = {
     circle: 'rounded-full',
     square: 'rounded-none',
@@ -75,6 +87,29 @@ export function CreatorIntroSection({ creator, config }: CreatorIntroSectionProp
           <p className="text-sm text-muted-foreground">Subscribers</p>
         </div>
       </div>
+
+      {showSubscribeButton && (
+        <Button
+          className="w-full h-12 text-base font-semibold text-white"
+          onClick={onSubscribeClick}
+          style={{
+            background:
+              'linear-gradient(to right, var(--profile-gradient-start), var(--profile-gradient-end))',
+          }}
+        >
+          Subscribe
+        </Button>
+      )}
+
+      {showMessageButton && (
+        <Button
+          variant="secondary"
+          className="w-full h-12 text-base font-semibold"
+          onClick={onMessageClick}
+        >
+          Message
+        </Button>
+      )}
     </div>
   );
 }

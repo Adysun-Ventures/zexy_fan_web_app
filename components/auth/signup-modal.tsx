@@ -33,6 +33,21 @@ export function SignupModal({ open, onClose }: SignupModalProps) {
     }
   }, [open]);
 
+  useEffect(() => {
+    if (!open || step !== 'otp') return;
+
+    // Ensure first empty OTP box is focused when OTP step opens
+    const firstEmptyIndex = otp.findIndex((digit) => digit === '');
+    const targetIndex = firstEmptyIndex === -1 ? 0 : firstEmptyIndex;
+
+    const timer = window.setTimeout(() => {
+      otpInputRefs.current[targetIndex]?.focus();
+      otpInputRefs.current[targetIndex]?.select();
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, [open, step, otp]);
+
   if (!open) return null;
 
   const validateMobile = (phone: string) => /^[6-9]\d{9}$/.test(phone);
