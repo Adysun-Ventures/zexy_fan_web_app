@@ -72,7 +72,7 @@ export default function MessageThreadPage() {
         </div>
       </header>
 
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+      <div className="flex-1 overflow-y-auto px-4 py-4 pb-28 space-y-3">
         {isLoading && (
           <div className="flex justify-center py-12">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -134,7 +134,7 @@ export default function MessageThreadPage() {
         <div ref={bottomRef} />
       </div>
 
-      <div className="sticky bottom-0 bg-background border-t p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+      <div className="sticky bottom-16 bg-background border-t p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
         <form
           className="flex gap-2 max-w-4xl mx-auto w-full"
           onSubmit={(e) => {

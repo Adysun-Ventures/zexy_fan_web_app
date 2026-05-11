@@ -161,13 +161,6 @@ export function MediaMessage({ message: m, mine, apiBaseUrl }: MediaMessageProps
                     <Play className="h-7 w-7 text-white" />
                   </div>
                 </div>
-                <div className="absolute bottom-0 left-0 right-0 px-3 py-2 flex items-end justify-between gap-2">
-                  <div className="min-w-0 text-left">
-                    <p className="text-white text-sm font-semibold leading-tight">Video message</p>
-                    <p className="text-white/80 text-xs truncate">Tap to play</p>
-                  </div>
-                  <span className="text-white/80 text-[10px] uppercase tracking-wide">Full screen</span>
-                </div>
               </div>
             </button>
             {videoOpen && urlToUse ? (
