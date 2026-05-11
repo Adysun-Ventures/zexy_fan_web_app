@@ -22,6 +22,7 @@ export interface VerifyOTPRequest {
   role: 'fan';
 }
 
+/** Same contract as zexy_api TokenResponse — do not use onboarding_step || n (0 is valid). Prefer ??. */
 export interface VerifyOTPResponse {
   access_token: string;
   refresh_token: string;
