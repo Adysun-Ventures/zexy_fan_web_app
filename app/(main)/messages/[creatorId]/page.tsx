@@ -10,8 +10,10 @@ import { useAuthContext } from '@/hooks/useAuth';
 import { useCreatorByIdentifier } from '@/hooks/useFeed';
 import { useMessageThread, useSendMessage } from '@/hooks/useMessages';
 import { TipDemandMessage } from '@/components/messages/tip-demand-message';
+import { MediaMessage } from '@/components/messages/media-message';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { ENV } from '@/constants/env';
 
 export default function MessageThreadPage() {
   const params = useParams();
@@ -99,6 +101,9 @@ export default function MessageThreadPage() {
                 mine={mine}
               />
             );
+          }
+          if (m.message_type === 'image' || m.message_type === 'video' || m.message_type === 'audio') {
+            return <MediaMessage key={m.id} message={m} mine={mine} apiBaseUrl={ENV.API_BASE_URL} />;
           }
           return (
             <div key={m.id} className={cn('flex', mine ? 'justify-end' : 'justify-start')}>

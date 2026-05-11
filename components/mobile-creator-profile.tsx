@@ -68,6 +68,7 @@ export function MobileCreatorProfile({ username }: MobileCreatorProfileProps) {
   const enabledSections = sections
     .filter(s => s.enabled)
     .sort((a, b) => a.order - b.order);
+  const hasActionsSection = enabledSections.some((s) => s.type === 'actions');
   
   return (
     <ProfileThemeProvider theme={theme}>
@@ -136,6 +137,15 @@ export function MobileCreatorProfile({ username }: MobileCreatorProfileProps) {
                 return null;
             }
           })}
+          {/* Fallback: even if config omits actions section entirely, still show Message when subscribed */}
+          {!hasActionsSection && creator.is_subscribed && (
+            <ActionButtonsSection
+              key="fallback-subscribed-chat"
+              buttons={[]}
+              creatorId={creator.id}
+              isSubscribed
+            />
+          )}
           
           {/* Loading state for content */}
           {contentLoading && (

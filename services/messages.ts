@@ -170,6 +170,16 @@ export const messageService = {
     await apiClient.post(`/api/v1/common/messages/${messageId}/read`);
   },
 
+  /** Signed URL for rendering protected media in a message bubble. */
+  getSignedMediaUrl: async (messageId: number): Promise<{ url: string }> => {
+    if (ENV.IS_MOCK) {
+      await sleep(150);
+      return { url: '' };
+    }
+    const response = await apiClient.get(`/api/v1/common/messages/${messageId}/signed-media-url`);
+    return response.data.data;
+  },
+
   /**
    * Razorpay order intent for paying a creator's tip_demand DM (see POST fan/messages/tip-demands/...).
    */
