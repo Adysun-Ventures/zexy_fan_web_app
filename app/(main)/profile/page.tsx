@@ -2,7 +2,7 @@
 
 import { useAuthContext } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { User, Phone, Mail } from 'lucide-react';
+import { Crown, Settings } from 'lucide-react';
 import { getMediaUrl } from '@/lib/utils';
 
 export default function ProfilePage() {
@@ -14,8 +14,6 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Profile</h1>
-
       <Card>
         <CardHeader>
           <div className="flex items-center gap-4">
@@ -33,26 +31,36 @@ export default function ProfilePage() {
             <div>
               <CardTitle>{user.name || 'Fan User'}</CardTitle>
               {user.username && <p className="text-sm text-muted-foreground">@{user.username}</p>}
+              <p className="text-sm text-muted-foreground">{user.mobile}</p>
+              <p className="text-sm text-muted-foreground">Fan</p>
             </div>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center gap-3 text-sm">
-            <Phone className="h-4 w-4 text-muted-foreground" />
-            <span>{user.mobile}</span>
-          </div>
-          <div className="flex items-center gap-3 text-sm">
-            <User className="h-4 w-4 text-muted-foreground" />
-            <span className="capitalize">{user.role}</span>
+      </Card>
+
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Crown className="h-5 w-5 text-amber-500" />
+            Membership
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-0 pb-4">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-muted-foreground">Current Plan</span>
+            <span className="text-sm font-semibold">Free</span>
           </div>
         </CardContent>
       </Card>
 
       <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Account Status</CardTitle>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Settings className="h-5 w-5 text-zinc-500" />
+            Settings
+          </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-0 pb-4">
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">Onboarding</span>
             <span className="text-sm font-semibold">

@@ -117,7 +117,7 @@ export default function CreatorsPage() {
               </div>
             )}
             {!isFetchingNextPage && hasNextPage && <span>Scroll to load more</span>}
-            {!hasNextPage && <span>No more creators</span>}
+            {!hasNextPage && <span aria-label="End of list">•</span>}
           </div>
         )}
 
