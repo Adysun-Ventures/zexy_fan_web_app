@@ -59,7 +59,6 @@ export default function ChatsPage() {
   if (LOCAL_CHATS.length === 0) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold">Chats</h1>
         <Card>
           <CardContent className="pt-6 text-center">
             <MessageCircle className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
@@ -71,36 +70,35 @@ export default function ChatsPage() {
   }
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-bold">Chats</h1>
-      <div className="grid gap-2">
+    <div>
+      <div>
         {LOCAL_CHATS.map((chat) => (
-          <Link key={chat.id} href={`/chats/${chat.id}`}>
-            <Card className="hover:bg-accent transition-colors cursor-pointer">
-              <CardContent className="p-3">
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold flex-shrink-0 overflow-hidden">
-                    {chat.name?.[0] || chat.username?.[0] || 'U'}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-0.5">
-                      <p className="font-semibold truncate">{chat.username}</p>
-                      <span className="text-xs text-muted-foreground flex-shrink-0 ml-2">
-                        {formatChatTimestamp(chat.lastMessageAt)}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm text-muted-foreground truncate">{chat.lastMessage}</p>
-                      {chat.unreadCount > 0 && (
-                        <span className="ml-2 flex-shrink-0 bg-primary text-primary-foreground text-xs font-semibold rounded-full h-5 min-w-5 px-1.5 flex items-center justify-center">
-                          {chat.unreadCount}
-                        </span>
-                      )}
-                    </div>
-                  </div>
+          <Link
+            key={chat.id}
+            href={`/chats/${chat.id}`}
+            className="block cursor-pointer px-2 py-3 transition-colors hover:bg-accent/40"
+          >
+            <div className="flex items-center gap-3">
+              <div className="h-12 w-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold flex-shrink-0 overflow-hidden">
+                {chat.name?.[0] || chat.username?.[0] || 'U'}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between mb-0.5">
+                  <p className="font-semibold truncate">{chat.username}</p>
+                  <span className="text-xs text-muted-foreground flex-shrink-0 ml-2">
+                    {formatChatTimestamp(chat.lastMessageAt)}
+                  </span>
                 </div>
-              </CardContent>
-            </Card>
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-muted-foreground truncate">{chat.lastMessage}</p>
+                  {chat.unreadCount > 0 && (
+                    <span className="ml-2 flex-shrink-0 bg-primary text-primary-foreground text-xs font-semibold rounded-full h-5 min-w-5 px-1.5 flex items-center justify-center">
+                      {chat.unreadCount}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
           </Link>
         ))}
       </div>

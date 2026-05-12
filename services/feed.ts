@@ -37,7 +37,7 @@ export interface Content {
   creator_username: string;
   creator_name: string;
   creator_avatar: string | null;
-  type: 'image' | 'video' | 'audio';
+  type: 'image' | 'video' | 'audio' | 'product';
   title: string;
   description: string | null;
   url: string | null; // null if locked
@@ -269,6 +269,62 @@ const MOCK_CONTENT: Content[] = [
     visibility: 'membership',
     is_locked: true,
     created_at: new Date(Date.now() - 172800000).toISOString(),
+  },
+
+  // Products (merch / digital goods)
+  {
+    id: 11,
+    creator_uid: 1,
+    creator_username: 'priya_sharma',
+    creator_name: 'Priya Sharma',
+    creator_avatar: null,
+    type: 'product',
+    title: 'Summer Capsule Tee',
+    description: 'Limited drop crewneck',
+    url: null,
+    thumbnail_url: null,
+    preview_url: null,
+    is_paid: true,
+    price: 899,
+    visibility: 'public',
+    is_locked: false,
+    created_at: new Date(Date.now() - 3600000).toISOString(),
+  },
+  {
+    id: 12,
+    creator_uid: 2,
+    creator_username: 'arjun_fitness',
+    creator_name: 'Arjun Kumar',
+    creator_avatar: null,
+    type: 'product',
+    title: 'Resistance Bands Set',
+    description: 'Full-body training kit',
+    url: null,
+    thumbnail_url: null,
+    preview_url: null,
+    is_paid: true,
+    price: 1499,
+    visibility: 'public',
+    is_locked: false,
+    created_at: new Date(Date.now() - 7200000).toISOString(),
+  },
+  {
+    id: 13,
+    creator_uid: 3,
+    creator_username: 'neha_music',
+    creator_name: 'Neha Patel',
+    creator_avatar: null,
+    type: 'product',
+    title: 'Signed Vinyl LP',
+    description: 'Limited edition pressing',
+    url: null,
+    thumbnail_url: null,
+    preview_url: null,
+    is_paid: true,
+    price: 2499,
+    visibility: 'membership',
+    is_locked: true,
+    created_at: new Date(Date.now() - 86400000).toISOString(),
   },
 ];
 

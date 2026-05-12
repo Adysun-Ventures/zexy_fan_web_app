@@ -13,19 +13,34 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { useCreatorByUsername, useCreatorContentByUsername } from '@/hooks/useFeed';
+import { useCreatorByUsername } from '@/hooks/useFeed';
 import { useCreatorProfileConfig } from '@/hooks/useCreatorProfile';
 import { useCreatorPlans } from '@/hooks/useSubscriptions';
 import { useAuthContext } from '@/hooks/useAuth';
-import { getMediaUrl } from '@/lib/utils';
+import { cn, formatCurrency, getMediaUrl } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useActionButton } from '@/hooks/useActionButton';
 import { SignupModal } from '@/components/auth/signup-modal';
 import { SubscriptionModal } from '@/components/subscription-modal';
+import { ContentPopup } from '@/components/content-popup';
 import type { ActionButton } from '@/types/creator-profile';
-import { Instagram, Facebook, Youtube, Loader2, ExternalLink, Menu, X, Home, Users, CreditCard, MessageCircle, User } from 'lucide-react';
-import type { Content } from '@/services/feed';
+import {
+  Instagram,
+  Facebook,
+  Youtube,
+  Loader2,
+  ExternalLink,
+  Menu,
+  X,
+  Home,
+  Users,
+  CreditCard,
+  MessageCircle,
+  User,
+  Image as LucideImage,
+  Package,
+} from 'lucide-react';
 import { toast } from 'sonner';
 
 interface LinkMeCreatorProfileProps {
@@ -100,6 +115,83 @@ function clamp01(v: number) {
   return Math.max(0, Math.min(1, v));
 }
 
+type ContentTabId = 'images' | 'videos' | 'audios' | 'products';
+
+const CONTENT_TABS: { id: ContentTabId; label: string }[] = [
+  { id: 'images', label: 'Images' },
+  { id: 'videos', label: 'Videos' },
+  { id: 'audios', label: 'Audios' },
+  { id: 'products', label: 'Products' },
+];
+
+/** Local demo assets only (Images tab). Not used for hero / cover — those stay on creator API. */
+const DEMO_PROFILE_IMAGE_SRCS = [
+  '/sample-media/tom.png',
+  '/sample-media/id-card-1.png',
+  '/sample-media/id-card-2.png',
+  '/sample-media/id-card-3.png',
+] as const;
+
+const DEMO_IMAGES_GRID_COUNT = 9;
+
+/** Local demo catalog (Products tab). Paths are served from `public/sample-products/`. */
+const DEMO_PRODUCTS: readonly {
+  id: string;
+  title: string;
+  price: number;
+  imageSrc: string;
+  description: string;
+}[] = [
+  {
+    id: 's-391801261',
+    title: "Men's Grey Checkered Slim Fit Shirt",
+    price: 1899,
+    imageSrc: '/sample-products/check-grey-shirt.png',
+    description:
+      'Long-sleeve button-down with a black grid on dark grey fabric. Chest pocket and a slim, tailored fit—easy to dress up or down.',
+  },
+  {
+    id: 'prod-ae-gradient-plaid',
+    title: 'American Eagle Gradient Plaid Flannel Shirt',
+    price: 2199,
+    imageSrc: '/sample-products/gradient-plaid-flannel.png',
+    description:
+      'Soft brushed flannel with plaid up top that fades through purple into deep navy at the hem. Twin chest pockets and classic collar.',
+  },
+  {
+    id: 'prod-navy-zip',
+    title: "Men's Navy Zip-Up Utility Shirt",
+    price: 1999,
+    imageSrc: '/sample-products/navy-zip-shirt.png',
+    description:
+      'Navy short-sleeve utility shirt with full front zip, spread collar, and two chest patch pockets. Layer over a tee for a clean casual look.',
+  },
+  {
+    id: 'prod-mandarin-green',
+    title: "Men's Dark Green Mandarin Collar Shirt",
+    price: 1799,
+    imageSrc: '/sample-products/mandarin-green-shirt.png',
+    description:
+      'Forest-green shirt with a mandarin collar, button front, and a single chest pocket. Rolled sleeves pair easily with denim.',
+  },
+  {
+    id: 'prod-beyours-dusk-blue',
+    title: 'Beyours Dusk Blue Shirt',
+    price: 1699,
+    imageSrc: '/sample-products/dusk-blue-shirt.png',
+    description:
+      'Long-sleeve dress shirt in Dusk Blue from Beyours: pointed collar, tonal buttons, and a curved hem—ideal for office or evenings out.',
+  },
+  {
+    id: 'prod-brown-plaid',
+    title: "Men's Brown Plaid Button-Down Shirt",
+    price: 1999,
+    imageSrc: '/sample-products/brown-plaid-shirt.png',
+    description:
+      'Brown and black plaid on breathable cotton feel. Single chest pocket, versatile regular fit—great for layering or wearing solo.',
+  },
+];
+
 const drawerNavItems = [
   { href: '/feed', label: 'Feed', icon: Home },
   { href: '/creators', label: 'Creators', icon: Users },
@@ -111,7 +203,6 @@ const drawerNavItems = [
 export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
   const { data: creator, isLoading: creatorLoading, error: creatorError } = useCreatorByUsername(username);
   const { data: config, isLoading: configLoading } = useCreatorProfileConfig(username);
-  const { data: content, isLoading: contentLoading } = useCreatorContentByUsername(username);
   const { handleButtonClick } = useActionButton();
   const router = useRouter();
   const { isAuthenticated } = useAuthContext();
@@ -366,17 +457,7 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
         <div className={showStickyProfileBar ? 'pt-14' : 'pt-0'} />
         {/* Exclusive (big) + Public grid */}
         <div className="pt-6 space-y-4">
-          {contentLoading ? (
-            <div className="flex justify-center py-10">
-              <Loader2 className="h-6 w-6 animate-spin text-zinc-400" />
-            </div>
-          ) : (
-            <CreatorMediaBlocks
-              content={content || []}
-              creatorCoverUrl={coverUrl}
-              onCardClick={handleContentClick}
-            />
-          )}
+          <CreatorMediaBlocks />
         </div>
       </div>
 
@@ -393,92 +474,116 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
   );
 }
 
-function CreatorMediaBlocks({
-  content,
-  creatorCoverUrl,
-  onCardClick,
-}: {
-  content: Content[];
-  creatorCoverUrl: string | null;
-  onCardClick: () => void;
-}) {
-  const exclusives = content.filter((c) => c.is_locked || c.is_paid);
-  const publicItems = content.filter((c) => c.visibility === 'public' && !c.is_locked && !c.is_paid);
+function CreatorMediaBlocks() {
+  const [activeTab, setActiveTab] = useState<ContentTabId>('images');
+  const [popup, setPopup] = useState<{
+    src: string;
+    title: string;
+    description?: string;
+  } | null>(null);
 
-  const featured = exclusives[0] || null;
+  const demoImageSlots = useMemo(
+    () =>
+      Array.from({ length: DEMO_IMAGES_GRID_COUNT }, (_, i) => ({
+        src: DEMO_PROFILE_IMAGE_SRCS[i % DEMO_PROFILE_IMAGE_SRCS.length],
+        label: `Demo ${i + 1}`,
+      })),
+    []
+  );
+
+  const emptyCopy: Record<Exclude<ContentTabId, 'images' | 'products'>, string> = {
+    videos: 'Videos coming soon.',
+    audios: 'Audio coming soon.',
+  };
 
   return (
-    <>
-      {featured ? (
-        <button
-          type="button"
-          onClick={onCardClick}
-          className="relative block w-full overflow-hidden rounded-2xl border border-white/10 bg-white/5 text-left"
-        >
-          <div className="absolute left-3 top-3 z-10 h-9 w-9 rounded-full bg-black/50 backdrop-blur grid place-items-center">
-            <ExternalLink className="h-4 w-4 text-white" />
-          </div>
-
-          {creatorCoverUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={creatorCoverUrl}
-              alt={featured.title}
-              className="h-56 w-full object-cover"
-            />
-          ) : (
-            <div className="h-56 w-full bg-gradient-to-br from-zinc-700 to-black" />
-          )}
-
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-black/10" />
-          <div className="absolute bottom-0 left-0 right-0 p-4 text-center">
-            <div className="text-lg font-semibold leading-snug">{featured.title}</div>
-          </div>
-        </button>
-      ) : null}
-
-      {publicItems.length > 0 ? (
-        <div className="grid grid-cols-2 gap-3">
-          {publicItems.slice(0, 6).map((item) => (
+    <div className="space-y-3">
+      <div className="flex gap-0 overflow-x-auto border-b border-white/15 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {CONTENT_TABS.map(({ id, label }) => {
+          const active = activeTab === id;
+          return (
             <button
-              key={item.id}
+              key={id}
               type="button"
-              onClick={onCardClick}
-              className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 text-left"
-            >
-              <div className="absolute left-2 top-2 z-10 h-8 w-8 rounded-full bg-black/50 backdrop-blur grid place-items-center">
-                <ExternalLink className="h-4 w-4 text-white" />
-              </div>
-
-              {creatorCoverUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={creatorCoverUrl}
-                  alt={item.title}
-                  className="aspect-[4/3] w-full object-cover"
-                />
-              ) : (
-                <div className="aspect-[4/3] w-full bg-gradient-to-br from-zinc-700 to-black" />
+              onClick={() => setActiveTab(id)}
+              className={cn(
+                'min-w-[4.5rem] flex-1 whitespace-nowrap px-2 py-2.5 text-center text-xs font-medium transition-colors sm:min-w-0 sm:text-sm',
+                active
+                  ? 'border-b-2 border-pink-500 text-white'
+                  : 'border-b-2 border-transparent text-zinc-500 hover:text-zinc-300'
               )}
+            >
+              {label}
+            </button>
+          );
+        })}
+      </div>
 
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-black/0" />
-              <div className="absolute bottom-0 left-0 right-0 p-3 text-center text-sm font-medium">
-                {item.title}
+      {activeTab === 'images' ? (
+        <div className="-mx-4 grid w-[calc(100%+2rem)] grid-cols-3 gap-0 sm:mx-0 sm:w-full">
+          {demoImageSlots.map((slot, i) => (
+            <button
+              key={`demo-img-${i}`}
+              type="button"
+              onClick={() => setPopup({ src: slot.src, title: slot.label })}
+              className="relative aspect-square w-full overflow-hidden bg-zinc-900 p-0"
+            >
+              <div className="pointer-events-none absolute left-1 top-1 z-10 rounded-full bg-black/50 p-1 text-white">
+                <LucideImage className="h-3.5 w-3.5" aria-hidden />
+              </div>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={slot.src} alt="" className="h-full w-full object-cover" loading="lazy" />
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent px-1 pb-1.5 pt-6">
+                <p className="line-clamp-1 text-center text-[9px] font-medium text-white sm:text-[10px]">{slot.label}</p>
+              </div>
+            </button>
+          ))}
+        </div>
+      ) : activeTab === 'products' ? (
+        <div className="-mx-4 grid w-[calc(100%+2rem)] grid-cols-3 gap-0 sm:mx-0 sm:w-full">
+          {DEMO_PRODUCTS.map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              onClick={() =>
+                setPopup({ src: p.imageSrc, title: p.title, description: p.description })
+              }
+              className="relative aspect-square w-full overflow-hidden bg-zinc-900 p-0"
+            >
+              <div className="pointer-events-none absolute left-1 top-1 z-10 rounded-full bg-black/50 p-1 text-white">
+                <Package className="h-3.5 w-3.5" aria-hidden />
+              </div>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={p.imageSrc} alt="" className="h-full w-full object-cover" loading="lazy" />
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent px-1 pb-1.5 pt-6">
+                <p className="line-clamp-2 text-center text-[9px] font-medium leading-tight text-white sm:text-[10px]">{p.title}</p>
+                <p className="mt-0.5 text-center text-[8px] font-semibold text-zinc-200 sm:text-[9px]">
+                  {formatCurrency(p.price)}
+                </p>
               </div>
             </button>
           ))}
         </div>
       ) : (
-        <button
-          type="button"
-          onClick={onCardClick}
-          className="w-full rounded-2xl border border-white/10 bg-white/5 p-10 text-center"
-        >
-          <div className="text-xl font-semibold">No posts yet</div>
-          <div className="mt-2 text-sm text-zinc-400">Public posts will appear here.</div>
-        </button>
+        <div className="rounded-2xl border border-white/10 bg-white/[0.03] py-12 text-center">
+          <p className="text-sm text-zinc-500">{emptyCopy[activeTab]}</p>
+        </div>
       )}
-    </>
+
+      <ContentPopup
+        open={popup !== null}
+        onClose={() => setPopup(null)}
+        title={popup?.title ?? ''}
+        imageSrc={popup?.src ?? ''}
+        imageAlt={popup?.title ?? ''}
+        description={popup?.description}
+        onBuyNow={
+          popup?.description
+            ? () => toast.message('Checkout coming soon.')
+            : undefined
+        }
+      />
+    </div>
   );
 }
 

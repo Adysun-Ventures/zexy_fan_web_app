@@ -17,7 +17,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
-      <body className={inter.className}>
+      {/* Inline fallback so the shell isn’t stark white if CSS chunks fail to load (network / cache). */}
+      <body
+        className={inter.className}
+        style={{
+          margin: 0,
+          minHeight: '100vh',
+          backgroundColor: 'hsl(240 10% 3.9%)',
+          color: 'hsl(0 0% 98%)',
+        }}
+      >
         <Providers>{children}</Providers>
       </body>
     </html>

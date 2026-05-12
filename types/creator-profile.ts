@@ -49,7 +49,7 @@ export interface ExclusiveContent {
   title: string;
   isLocked: boolean;
   price: number;
-  type: 'image' | 'video' | 'audio';
+  type: 'image' | 'video' | 'audio' | 'product';
 }
 
 export interface MembershipPlan {

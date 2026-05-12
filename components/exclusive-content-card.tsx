@@ -7,7 +7,7 @@
 'use client';
 
 import { ExclusiveContent } from '@/types/creator-profile';
-import { Lock, Play, Image as ImageIcon, Music } from 'lucide-react';
+import { Lock, Play, Image as ImageIcon, Music, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/lib/utils';
 
@@ -20,12 +20,14 @@ interface ExclusiveContentCardProps {
 /**
  * Get icon for content type
  */
-function getContentIcon(type: 'image' | 'video' | 'audio') {
+function getContentIcon(type: 'image' | 'video' | 'audio' | 'product') {
   switch (type) {
     case 'video':
       return Play;
     case 'audio':
       return Music;
+    case 'product':
+      return Package;
     default:
       return ImageIcon;
   }
