@@ -45,7 +45,7 @@ const MOCK_PROFILE_CONFIG: CreatorProfileConfig = {
       id: 'chat-now',
       label: 'Chat Now',
       type: 'chat',
-      action: '/messages',
+      action: '/chats',
       icon: 'MessageCircle',
       style: 'secondary',
     },
@@ -101,7 +101,7 @@ const MOCK_PROFILE_CONFIG: CreatorProfileConfig = {
       id: 'chat',
       label: 'Chat',
       icon: 'MessageCircle',
-      route: '/messages',
+      route: '/chats',
       requiresAuth: true,
     },
     {

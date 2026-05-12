@@ -13,11 +13,11 @@ export function Footer() {
       <footer className="mt-8 border-t border-white/10 bg-black text-white">
         <div className="container mx-auto px-4 py-8">
           <div className="mx-auto flex max-w-md flex-col items-center">
-            <div className="relative mb-4 flex h-11 w-20 items-center justify-center">
+            <div className="relative mb-4 flex h-11 w-16 items-center justify-center">
               <div className="absolute left-0 flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-gradient-to-br from-zinc-700 to-zinc-900">
                 <UserRound className="h-5 w-5 text-zinc-200" />
               </div>
-              <div className="absolute right-0 flex h-10 w-10 items-center justify-center rounded-full border border-pink-300/50 bg-pink-500 p-1.5 shadow-md shadow-pink-500/20">
+              <div className="absolute left-6 flex h-10 w-10 items-center justify-center rounded-full border border-pink-300/50 bg-pink-500 p-1.5 shadow-md shadow-pink-500/20">
                 <Image
                   src="/zexy_z_letter_logo_nobg.png"
                   alt="Zexy"
@@ -31,12 +31,12 @@ export function Footer() {
             <button
               type="button"
               onClick={() => setIsSignupModalOpen(true)}
-              className="mb-2 text-center text-2xl font-semibold leading-tight tracking-tight transition-opacity hover:opacity-85"
+              className="mb-2 text-center text-2xl  leading-tight tracking-tight transition-opacity hover:opacity-85"
             >
               Create Your Profile On Zexy
             </button>
 
-            <div className="flex items-center justify-center gap-2 text-sm text-zinc-400">
+            <div className="flex items-center justify-center gap-2 text-sm text-gray-400">
               <a
                 href="https://zexy.live/privacy-policy"
                 target="_blank"

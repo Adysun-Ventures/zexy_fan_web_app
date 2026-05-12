@@ -11,7 +11,7 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useDeviceDetection } from '@/hooks/useDeviceDetection';
-import { MobileCreatorProfile } from '@/components/mobile-creator-profile';
+import { LinkMeCreatorProfile } from '@/components/linkme-creator-profile';
 import { Loader2 } from 'lucide-react';
 
 export default function PublicCreatorProfilePage() {
@@ -35,7 +35,7 @@ export default function PublicCreatorProfilePage() {
   }
   
   // Render mobile profile for mobile/tablet users
-  return <MobileCreatorProfile username={username} />;
+  return <LinkMeCreatorProfile username={username} />;
 }
 
 // Old implementation (kept for reference, can be removed later)
