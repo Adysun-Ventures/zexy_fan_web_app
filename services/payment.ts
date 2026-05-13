@@ -20,6 +20,16 @@ export interface CreateIntentResponse {
   amount: number;
   currency: string;
   key_id: string;
+  mock_checkout_url?: string | null;
+  payment_gateway?: string | null;
+}
+
+export type CheckoutSimOutcome = 'success' | 'failure' | 'cancel';
+
+export interface StartCheckoutParams {
+  intent: CreateIntentResponse;
+  /** When omitted: success if ENV.IS_MOCK, else success (no real SDK yet). */
+  simulate?: CheckoutSimOutcome;
 }
 
 export interface VerifyPaymentRequest {
@@ -57,6 +67,37 @@ export const paymentService = {
 
     const response = await apiClient.post('/api/v1/fan/payments/intents', data);
     return response.data.data;
+  },
+
+  /**
+   * Client-side checkout simulation (no gateway SDK). Use verifyPayload with verifyPayment when outcome is success.
+   */
+  startCheckout: async (
+    params: StartCheckoutParams
+  ): Promise<{
+    outcome: CheckoutSimOutcome;
+    verifyPayload?: VerifyPaymentRequest;
+    errorMessage?: string;
+  }> => {
+    const intent = params.intent;
+    const simulate: CheckoutSimOutcome =
+      params.simulate ?? (ENV.IS_MOCK ? 'success' : 'success');
+
+    await sleep(simulate === 'cancel' ? 150 : 400);
+
+    if (simulate === 'cancel') {
+      return { outcome: 'cancel' };
+    }
+    if (simulate === 'failure') {
+      return { outcome: 'failure', errorMessage: 'Checkout failed (simulated)' };
+    }
+
+    const verifyPayload: VerifyPaymentRequest = {
+      gateway_order_id: intent.gateway_order_id,
+      gateway_payment_id: 'pay_mock_' + Date.now(),
+      gateway_signature: 'sig_mock_' + Date.now(),
+    };
+    return { outcome: 'success', verifyPayload };
   },
 
   /**
