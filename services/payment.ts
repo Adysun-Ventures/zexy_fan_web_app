@@ -65,8 +65,8 @@ export const paymentService = {
       };
     }
 
-    const response = await apiClient.post('/api/v1/fan/payments/intents', data);
-    return response.data.data;
+    const response = await apiClient.post('/api/v1/fan/payments/create-intent', data);
+    return response.data.data || response.data;
   },
 
   /**
@@ -80,6 +80,9 @@ export const paymentService = {
     errorMessage?: string;
   }> => {
     const intent = params.intent;
+    
+    // If we have a mock checkout URL, we should ideally show the simulation UI.
+    // For now, we simulate the delay and return the success payload.
     const simulate: CheckoutSimOutcome =
       params.simulate ?? (ENV.IS_MOCK ? 'success' : 'success');
 
@@ -101,7 +104,7 @@ export const paymentService = {
   },
 
   /**
-   * Verify payment after Razorpay success
+   * Verify payment after gateway success
    */
   verifyPayment: async (data: VerifyPaymentRequest): Promise<VerifyPaymentResponse> => {
     if (ENV.IS_MOCK) {
@@ -114,7 +117,7 @@ export const paymentService = {
       };
     }
 
-    const response = await apiClient.post('/api/v1/fan/payments/intents/verify', data);
-    return response.data.data;
+    const response = await apiClient.post('/api/v1/fan/payments/verify', data);
+    return response.data.data || response.data;
   },
 };
