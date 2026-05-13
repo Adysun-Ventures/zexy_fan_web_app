@@ -291,13 +291,13 @@ export default function ChatThreadPage() {
                 className={[
                   'max-w-[80%] rounded-2xl px-3 py-2',
                   isMe
-                    ? 'bg-zinc-500 text-black rounded-br-md'
+                    ? 'bg-zinc-500 text-white rounded-br-md'
                     : 'bg-zinc-700 text-white rounded-bl-md',
                 ].join(' ')}
               >
                 <p className="text-sm whitespace-pre-wrap break-words">{msg.body}</p>
                 <p
-                  className={`mt-1 text-[11px] ${isMe ? 'text-black/70' : 'text-white/55'}`}
+                  className={`mt-1 text-[11px] ${isMe ? 'text-white/70' : 'text-white/55'}`}
                 >
                   {formatTime(msg.createdAt)}
                 </p>
@@ -311,29 +311,31 @@ export default function ChatThreadPage() {
       {/* Bottom input bar */}
       <div className="shrink-0 border-t border-zinc-800 bg-black p-2">
         <div
-          className={`mb-2 flex w-full items-center gap-2 ${
-            creatorTipRequest && creatorTipBannerVisible ? 'justify-between' : 'justify-end'
-          }`}
+        className={`mb-2 flex w-full items-center gap-2 ${
+          creatorTipRequest && creatorTipBannerVisible ? 'justify-between' : 'justify-end'
+        }`}
+      >
+        {creatorTipRequest && creatorTipBannerVisible && (
+  <button
+    type="button"
+    onClick={openRequestedTipPopup}
+    className="rounded-xl border border-amber-500/40 bg-amber-500/15 px-3 py-2 text-left text-xs font-medium text-amber-200 whitespace-nowrap sm:text-sm"
+  >
+    {creatorTipRequest.message}
+    <span className="text-amber-200/80"> · Tap to pay</span>
+  </button>
+)}
+  
+        <button
+          type="button"
+          onClick={openFreeTipPopup}
+          className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-pink-600 text-base font-bold text-white shadow-md hover:bg-pink-500"
+          aria-label="Send tip"
         >
-          {creatorTipRequest && creatorTipBannerVisible && (
-            <button
-              type="button"
-              onClick={openRequestedTipPopup}
-              className="min-w-0 max-w-[13.5rem] shrink rounded-xl border border-amber-500/40 bg-amber-500/15 px-2.5 py-2 text-left text-xs font-medium leading-snug text-amber-200 sm:max-w-[15rem] sm:px-3 sm:text-sm"
-            >
-              {creatorTipRequest.message}
-              <span className="text-amber-200/80"> · Tap to pay</span>
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={openFreeTipPopup}
-            className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-pink-600 text-base font-bold text-white shadow-md hover:bg-pink-500"
-            aria-label="Send tip"
-          >
-            ₹
-          </button>
-        </div>
+          ₹
+        </button>
+      </div>
+
 
         <div className="relative flex items-center gap-2">
           <Button

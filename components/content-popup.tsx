@@ -12,6 +12,10 @@ export interface ContentPopupProps {
   /** Top-left title (Instagram-style header). */
   title: string;
   imageSrc: string;
+  /** Optional: show a playable video instead of an image. */
+  videoSrc?: string;
+  /** Optional: show a playable audio player (image can still be used as cover). */
+  audioSrc?: string;
   imageAlt?: string;
   /**
    * Max width of the rounded panel (CSS length).
@@ -57,6 +61,8 @@ export function ContentPopup({
   onClose,
   title,
   imageSrc,
+  videoSrc,
+  audioSrc,
   imageAlt = '',
   panelMaxWidth = DEFAULT_MAX_W,
   panelMaxHeight = DEFAULT_MAX_H,
@@ -86,7 +92,7 @@ export function ContentPopup({
     setSaved(false);
     setBurstKey(0);
     setDescriptionExpanded(false);
-  }, [open, imageSrc, description]);
+  }, [open, imageSrc, description, videoSrc, audioSrc]);
 
   const triggerDoubleTapLike = () => {
     setLiked(true);
@@ -163,21 +169,38 @@ export function ContentPopup({
             </Button>
           </header>
 
-          {/* Center: image — full bleed width; cover fills strip (double-click / double-tap to like) */}
+          {/* Center: media — image/video/audio */}
           <div
             className="relative min-h-0 w-full min-w-0 flex-1 touch-manipulation bg-black"
             onDoubleClick={handleImageDoubleClick}
             onTouchEnd={handleImageTouchEnd}
             role="presentation"
           >
-            {/* Full bleed: image pinned to edges of this strip (width + height of flex area) */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={imageSrc}
-              alt={imageAlt || title}
-              className="absolute inset-0 h-full w-full select-none object-cover object-center"
-              draggable={false}
-            />
+            {videoSrc ? (
+              <video
+                src={videoSrc}
+                controls
+                playsInline
+                className="absolute inset-0 h-full w-full bg-black object-contain"
+              />
+            ) : (
+              <>
+                {/* Full bleed: image pinned to edges of this strip (width + height of flex area) */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={imageSrc}
+                  alt={imageAlt || title}
+                  className="absolute inset-0 h-full w-full select-none object-cover object-center"
+                  draggable={false}
+                />
+
+                {audioSrc ? (
+                  <div className="absolute inset-x-0 bottom-0 z-10 bg-black/55 px-3 py-3 backdrop-blur-sm">
+                    <audio src={audioSrc} controls className="w-full" />
+                  </div>
+                ) : null}
+              </>
+            )}
             {burstKey > 0 && (
               <div
                 key={burstKey}

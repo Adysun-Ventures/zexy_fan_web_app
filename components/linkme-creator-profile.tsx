@@ -40,6 +40,8 @@ import {
   User,
   Image as LucideImage,
   Package,
+  Video,
+  Music,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -133,6 +135,80 @@ const DEMO_PROFILE_IMAGE_SRCS = [
 ] as const;
 
 const DEMO_IMAGES_GRID_COUNT = 9;
+
+const DEMO_VIDEOS: readonly {
+  id: string;
+  title: string;
+  duration: string;
+  thumbSrc: string;
+  videoSrc: string;
+}[] = [
+  {
+    id: 'vid-1',
+    title: 'Morning stretch routine',
+    duration: '02:18',
+    thumbSrc: '/sample-media/id-card-1.png',
+    videoSrc: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
+  },
+  {
+    id: 'vid-2',
+    title: 'Quick HIIT finisher',
+    duration: '04:05',
+    thumbSrc: '/sample-media/id-card-2.png',
+    videoSrc: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
+  },
+  {
+    id: 'vid-3',
+    title: 'Core workout (no equipment)',
+    duration: '03:12',
+    thumbSrc: '/sample-media/id-card-3.png',
+    videoSrc: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
+  },
+  {
+    id: 'vid-4',
+    title: 'Cool-down + mobility',
+    duration: '01:47',
+    thumbSrc: '/sample-media/tom.png',
+    videoSrc: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
+  },
+] as const;
+
+const DEMO_AUDIOS: readonly {
+  id: string;
+  title: string;
+  duration: string;
+  thumbSrc: string;
+  audioSrc: string;
+}[] = [
+  {
+    id: 'aud-1',
+    title: 'Breathing reset (guided)',
+    duration: '05:30',
+    thumbSrc: '/sample-media/id-card-1.png',
+    audioSrc: 'https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3',
+  },
+  {
+    id: 'aud-2',
+    title: 'Focus track — deep work',
+    duration: '12:10',
+    thumbSrc: '/sample-media/id-card-2.png',
+    audioSrc: 'https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3',
+  },
+  {
+    id: 'aud-3',
+    title: 'Sleep wind-down (calm)',
+    duration: '09:45',
+    thumbSrc: '/sample-media/id-card-3.png',
+    audioSrc: 'https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3',
+  },
+  {
+    id: 'aud-4',
+    title: 'Motivation talk (short)',
+    duration: '03:20',
+    thumbSrc: '/sample-media/tom.png',
+    audioSrc: 'https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3',
+  },
+] as const;
 
 /** Local demo catalog (Products tab). Paths are served from `public/sample-products/`. */
 const DEMO_PRODUCTS: readonly {
@@ -457,7 +533,7 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
         <div className={showStickyProfileBar ? 'pt-14' : 'pt-0'} />
         {/* Exclusive (big) + Public grid */}
         <div className="pt-6 space-y-4">
-          <CreatorMediaBlocks />
+          <CreatorMediaBlocks creatorAvatarSrc={coverUrl || '/sample-media/tom.png'} />
         </div>
       </div>
 
@@ -474,12 +550,14 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
   );
 }
 
-function CreatorMediaBlocks() {
+function CreatorMediaBlocks({ creatorAvatarSrc }: { creatorAvatarSrc: string }) {
   const [activeTab, setActiveTab] = useState<ContentTabId>('images');
   const [popup, setPopup] = useState<{
     src: string;
     title: string;
     description?: string;
+    videoSrc?: string;
+    audioSrc?: string;
   } | null>(null);
 
   const demoImageSlots = useMemo(
@@ -490,11 +568,6 @@ function CreatorMediaBlocks() {
       })),
     []
   );
-
-  const emptyCopy: Record<Exclude<ContentTabId, 'images' | 'products'>, string> = {
-    videos: 'Videos coming soon.',
-    audios: 'Audio coming soon.',
-  };
 
   return (
     <div className="space-y-3">
@@ -539,6 +612,54 @@ function CreatorMediaBlocks() {
             </button>
           ))}
         </div>
+      ) : activeTab === 'videos' ? (
+        <div className="-mx-4 grid w-[calc(100%+2rem)] grid-cols-3 gap-0 sm:mx-0 sm:w-full">
+          {DEMO_VIDEOS.map((v) => (
+            <button
+              key={v.id}
+              type="button"
+              onClick={() => setPopup({ src: v.thumbSrc, title: v.title, videoSrc: v.videoSrc })}
+              className="relative aspect-square w-full overflow-hidden bg-zinc-900 p-0"
+            >
+              <div className="pointer-events-none absolute left-1 top-1 z-10 rounded-full bg-black/50 p-1 text-white">
+                <Video className="h-3.5 w-3.5" aria-hidden />
+              </div>
+              <div className="pointer-events-none absolute right-1 top-1 z-10 rounded-full bg-black/50 px-2 py-0.5 text-[10px] font-semibold text-white">
+                {v.duration}
+              </div>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={v.thumbSrc} alt="" className="h-full w-full object-cover" loading="lazy" />
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent px-1 pb-1.5 pt-6">
+                <p className="line-clamp-1 text-center text-[9px] font-medium text-white sm:text-[10px]">{v.title}</p>
+              </div>
+            </button>
+          ))}
+        </div>
+      ) : activeTab === 'audios' ? (
+        <div className="-mx-4 grid w-[calc(100%+2rem)] grid-cols-3 gap-0 sm:mx-0 sm:w-full">
+          {DEMO_AUDIOS.map((a) => (
+            <button
+              key={a.id}
+              type="button"
+              onClick={() =>
+                setPopup({ src: creatorAvatarSrc, title: a.title, audioSrc: a.audioSrc })
+              }
+              className="relative aspect-square w-full overflow-hidden bg-zinc-900 p-0"
+            >
+              <div className="pointer-events-none absolute left-1 top-1 z-10 rounded-full bg-black/50 p-1 text-white">
+                <Music className="h-3.5 w-3.5" aria-hidden />
+              </div>
+              <div className="pointer-events-none absolute right-1 top-1 z-10 rounded-full bg-black/50 px-2 py-0.5 text-[10px] font-semibold text-white">
+                {a.duration}
+              </div>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={a.thumbSrc} alt="" className="h-full w-full object-cover" loading="lazy" />
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent px-1 pb-1.5 pt-6">
+                <p className="line-clamp-1 text-center text-[9px] font-medium text-white sm:text-[10px]">{a.title}</p>
+              </div>
+            </button>
+          ))}
+        </div>
       ) : activeTab === 'products' ? (
         <div className="-mx-4 grid w-[calc(100%+2rem)] grid-cols-3 gap-0 sm:mx-0 sm:w-full">
           {DEMO_PRODUCTS.map((p) => (
@@ -566,7 +687,7 @@ function CreatorMediaBlocks() {
         </div>
       ) : (
         <div className="rounded-2xl border border-white/10 bg-white/[0.03] py-12 text-center">
-          <p className="text-sm text-zinc-500">{emptyCopy[activeTab]}</p>
+          <p className="text-sm text-zinc-500">Nothing here yet.</p>
         </div>
       )}
 
@@ -576,6 +697,8 @@ function CreatorMediaBlocks() {
         title={popup?.title ?? ''}
         imageSrc={popup?.src ?? ''}
         imageAlt={popup?.title ?? ''}
+        videoSrc={popup?.videoSrc}
+        audioSrc={popup?.audioSrc}
         description={popup?.description}
         onBuyNow={
           popup?.description
