@@ -39,29 +39,27 @@ export default function PaymentTestPage() {
       return;
     }
 
-    if (outcome === 'failure') {
-      setActiveIntent(null);
-      toast.error('Payment Failed');
-      return;
-    }
-
-    // Success outcome
     setLoading(true);
     try {
-      const { verifyPayload } = await paymentService.startCheckout({
+      // For both success and failure, we call startCheckout to simulate the gateway behavior
+      const { outcome: actualOutcome, verifyPayload, errorMessage } = await paymentService.startCheckout({
         intent: activeIntent,
-        simulate: 'success'
+        simulate: outcome
       });
 
-      if (verifyPayload) {
+      if (actualOutcome === 'failure') {
+        toast.error(errorMessage || 'Payment Failed');
+      } else if (actualOutcome === 'success' && verifyPayload) {
         const result = await paymentService.verifyPayment(verifyPayload);
         if (result.success) {
           setLastTxId(result.transaction_id);
           toast.success('Payment Verified Successfully!');
+        } else {
+          toast.error('Verification failed on backend');
         }
       }
     } catch (err: any) {
-      toast.error('Verification failed');
+      toast.error('An unexpected error occurred');
       console.error(err);
     } finally {
       setActiveIntent(null);
