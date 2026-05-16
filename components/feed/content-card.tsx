@@ -1,25 +1,17 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Lock, Play, Image as ImageIcon } from 'lucide-react';
-import { formatCurrency, formatDate, getMediaUrl } from '@/lib/utils';
+import { formatDate, getMediaUrl } from '@/lib/utils';
 import type { Content } from '@/services/feed';
-import { PaymentModal } from '@/components/content/payment-modal';
 
 interface ContentCardProps {
   content: Content;
 }
 
 export function ContentCard({ content }: ContentCardProps) {
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-
-  const handleUnlock = () => {
-    setShowPaymentModal(true);
-  };
-
   return (
     <>
       <Card className="overflow-hidden">
@@ -43,7 +35,7 @@ export function ContentCard({ content }: ContentCardProps) {
               >
                 {content.creator_name || content.creator_username}
               </Link>
-              <p className="text-xs text-muted-foreground">{formatDate(content.created_at)}</p>
+              <p className="text-xs text-muted-foreground">{formatDate(content.created_on)}</p>
             </div>
           </div>
         </CardHeader>
@@ -59,12 +51,11 @@ export function ContentCard({ content }: ContentCardProps) {
             {content.is_locked ? (
               <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm">
                 <Lock className="h-12 w-12 text-white mb-2" />
-                <p className="text-white font-semibold">{formatCurrency(content.price)}</p>
-                <p className="text-white/80 text-sm">Unlock to view</p>
+                <p className="text-white/80 text-sm">Join to view</p>
               </div>
             ) : (
               <div className="absolute inset-0 flex items-center justify-center">
-                {content.type === 'video' ? (
+                {content.media?.[0]?.media_type === 'video' ? (
                   <Play className="h-16 w-16 text-white/80" />
                 ) : (
                   <ImageIcon className="h-16 w-16 text-white/80" />
@@ -76,10 +67,12 @@ export function ContentCard({ content }: ContentCardProps) {
 
         <CardFooter className="pt-0">
           {content.is_locked ? (
-            <Button onClick={handleUnlock} className="w-full">
-              <Lock className="mr-2 h-4 w-4" />
-              Unlock for {formatCurrency(content.price)}
-            </Button>
+            <Link href={`/creator/${content.creator_username}`} className="w-full">
+              <Button className="w-full">
+                <Lock className="mr-2 h-4 w-4" />
+                Join to Unlock
+              </Button>
+            </Link>
           ) : (
             <Link href={`/content/${content.id}`} className="w-full">
               <Button variant="outline" className="w-full">
@@ -89,15 +82,6 @@ export function ContentCard({ content }: ContentCardProps) {
           )}
         </CardFooter>
       </Card>
-
-      {showPaymentModal && (
-        <PaymentModal
-          contentId={content.id}
-          amount={content.price}
-          title={content.title}
-          onClose={() => setShowPaymentModal(false)}
-        />
-      )}
     </>
   );
 }

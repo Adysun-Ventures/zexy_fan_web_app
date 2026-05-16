@@ -45,11 +45,9 @@ export interface QAItem {
 
 export interface ExclusiveContent {
   id: number;
-  thumbnailUrl: string | null;
   title: string;
   isLocked: boolean;
-  price: number;
-  type: 'image' | 'video' | 'audio' | 'product';
+  media_type: 'image' | 'video' | 'audio';
 }
 
 export interface MembershipPlan {

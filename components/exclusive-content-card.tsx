@@ -9,7 +9,6 @@
 import { ExclusiveContent } from '@/types/creator-profile';
 import { Lock, Play, Image as ImageIcon, Music, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { formatCurrency } from '@/lib/utils';
 
 interface ExclusiveContentCardProps {
   content: ExclusiveContent;
@@ -20,14 +19,12 @@ interface ExclusiveContentCardProps {
 /**
  * Get icon for content type
  */
-function getContentIcon(type: 'image' | 'video' | 'audio' | 'product') {
-  switch (type) {
+function getContentIcon(media_type: 'image' | 'video' | 'audio') {
+  switch (media_type) {
     case 'video':
       return Play;
     case 'audio':
       return Music;
-    case 'product':
-      return Package;
     default:
       return ImageIcon;
   }
@@ -45,7 +42,7 @@ export function ExclusiveContentCard({
   onUnlock, 
   isAuthenticated 
 }: ExclusiveContentCardProps) {
-  const Icon = getContentIcon(content.type);
+  const Icon = getContentIcon(content.media_type);
   
   return (
     <div className="relative aspect-square rounded-lg overflow-hidden group">
@@ -74,7 +71,7 @@ export function ExclusiveContentCard({
             className="bg-white text-black hover:bg-white/90"
           >
             {isAuthenticated ? (
-              <>Unlock {formatCurrency(content.price)}</>
+              <>Join to Unlock</>
             ) : (
               <>Login to Unlock</>
             )}

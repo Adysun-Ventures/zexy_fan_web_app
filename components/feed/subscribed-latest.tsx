@@ -18,11 +18,11 @@ export function SubscribedLatest() {
   if (subscribedCreatorIds.length === 0) return null;
 
   // Get the latest post for each subscribed creator
-  // We sort by created_at to ensure we get the actual latest
+  // We sort by created_on to ensure we get the actual latest
   const latestPosts = subscribedCreatorIds.map((id) => {
     return content
       ?.filter((c) => c.creator_uid === id)
-      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0];
+      .sort((a, b) => new Date(b.created_on).getTime() - new Date(a.created_on).getTime())[0];
   }).filter(Boolean);
 
   if (latestPosts.length === 0) return null;
@@ -45,23 +45,15 @@ export function SubscribedLatest() {
           >
             <div className="relative aspect-[16/10] rounded-2xl overflow-hidden bg-zinc-900 border border-zinc-800 shadow-xl group-hover:border-purple-500/50 transition-all duration-300">
               {/* Thumbnail / Placeholder */}
-              {post!.thumbnail_url ? (
-                <img 
-                  src={getMediaUrl(post!.thumbnail_url)!} 
-                  alt={post!.title}
-                  className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500 opacity-80 group-hover:opacity-100" 
-                />
-              ) : (
-                <div className="w-full h-full bg-gradient-to-br from-purple-900/20 via-zinc-900 to-pink-900/20 flex items-center justify-center">
-                  {post!.type === 'video' ? (
-                    <Play className="w-10 h-10 text-purple-500/40" />
-                  ) : post!.type === 'audio' ? (
-                    <Music className="w-10 h-10 text-purple-500/40" />
-                  ) : (
-                    <ImageIcon className="w-10 h-10 text-purple-500/40" />
-                  )}
-                </div>
-              )}
+              <div className="w-full h-full bg-gradient-to-br from-purple-900/20 via-zinc-900 to-pink-900/20 flex items-center justify-center">
+                {post!.media?.[0]?.media_type === 'video' ? (
+                  <Play className="w-10 h-10 text-purple-500/40" />
+                ) : post!.media?.[0]?.media_type === 'audio' ? (
+                  <Music className="w-10 h-10 text-purple-500/40" />
+                ) : (
+                  <ImageIcon className="w-10 h-10 text-purple-500/40" />
+                )}
+              </div>
 
               {/* Overlay Gradient */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />

@@ -9,7 +9,6 @@ import type { Content } from './feed';
 
 export interface ContentDetail extends Content {
   duration_seconds: number | null;
-  tags: string[] | null;
 }
 
 // ============================================================================
@@ -22,19 +21,17 @@ const MOCK_CONTENT_DETAIL: ContentDetail = {
   creator_username: 'creator_two',
   creator_name: 'Mike Chen',
   creator_avatar: null,
-  type: 'video',
   title: 'Premium Pasta Recipe',
   description: 'Learn my secret technique for perfect pasta. This comprehensive guide covers everything from selecting the right ingredients to achieving the perfect al dente texture.',
   url: null,
-  thumbnail_url: null,
-  preview_url: 'https://example.com/preview2.mp4',
+  media: [{ url: 'https://example.com/preview2.mp4', media_type: 'video' }],
+  media_urls: ['https://example.com/preview2.mp4'],
   is_paid: true,
-  price: 99,
+  is_exclusive: false,
   visibility: 'public',
   is_locked: true,
-  created_at: new Date(Date.now() - 3600000).toISOString(),
+  created_on: new Date(Date.now() - 3600000).toISOString(),
   duration_seconds: 1200,
-  tags: ['cooking', 'pasta', 'italian'],
 };
 
 // ============================================================================

@@ -52,11 +52,9 @@ export function ExclusivesGridSection({ content }: ExclusivesGridSectionProps) {
               key={item.id}
               content={{
                 id: item.id,
-                thumbnailUrl: item.thumbnail_url,
                 title: item.title,
                 isLocked: item.is_locked,
-                price: item.price,
-                type: item.type,
+                media_type: item.media?.[0]?.media_type || 'image',
               }}
               onUnlock={handleUnlock}
               isAuthenticated={isAuthenticated}

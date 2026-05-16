@@ -31,23 +31,27 @@ export interface CreatorsPageResponse {
   nextCursor: number | null;
 }
 
+export interface ContentMedia {
+  url: string;
+  media_type: 'image' | 'video' | 'audio';
+}
+
 export interface Content {
   id: number;
   creator_uid: number;
   creator_username: string;
   creator_name: string;
   creator_avatar: string | null;
-  type: 'image' | 'video' | 'audio' | 'product';
   title: string;
   description: string | null;
   url: string | null; // null if locked
-  thumbnail_url: string | null;
-  preview_url: string | null;
+  media: ContentMedia[];
+  media_urls: string[];
   is_paid: boolean;
-  price: number;
-  visibility: 'public' | 'membership' | 'private';
-  is_locked: boolean; // Computed: true if paid and not unlocked
-  created_at: string;
+  is_exclusive: boolean;
+  visibility: 'public' | 'membership';
+  is_locked: boolean; // Computed: true if membership and not subscribed
+  created_on: string;
 }
 
 // ============================================================================
@@ -92,17 +96,16 @@ const MOCK_CONTENT: Content[] = [
     creator_username: 'priya_sharma',
     creator_name: 'Priya Sharma',
     creator_avatar: null,
-    type: 'image',
     title: 'Summer Fashion Lookbook',
     description: 'My favorite summer outfits and styling tips',
     url: 'https://example.com/image1.jpg',
-    thumbnail_url: null,
-    preview_url: null,
+    media: [{ url: 'https://example.com/image1.jpg', media_type: 'image' }],
+    media_urls: ['https://example.com/image1.jpg'],
     is_paid: false,
-    price: 0,
+    is_exclusive: false,
     visibility: 'public',
     is_locked: false,
-    created_at: new Date().toISOString(),
+    created_on: new Date().toISOString(),
   },
   {
     id: 4,
@@ -110,17 +113,16 @@ const MOCK_CONTENT: Content[] = [
     creator_username: 'priya_sharma',
     creator_name: 'Priya Sharma',
     creator_avatar: null,
-    type: 'video',
     title: 'Makeup Tutorial: Evening Glam',
     description: 'Step-by-step evening makeup look',
     url: 'https://example.com/video4.mp4',
-    thumbnail_url: null,
-    preview_url: null,
+    media: [{ url: 'https://example.com/video4.mp4', media_type: 'video' }],
+    media_urls: ['https://example.com/video4.mp4'],
     is_paid: false,
-    price: 0,
+    is_exclusive: false,
     visibility: 'public',
     is_locked: false,
-    created_at: new Date(Date.now() - 86400000).toISOString(),
+    created_on: new Date(Date.now() - 86400000).toISOString(),
   },
   {
     id: 5,
@@ -128,17 +130,16 @@ const MOCK_CONTENT: Content[] = [
     creator_username: 'priya_sharma',
     creator_name: 'Priya Sharma',
     creator_avatar: null,
-    type: 'video',
     title: 'Exclusive: Behind My Photoshoot',
     description: 'Premium behind-the-scenes content from my latest shoot',
     url: null, // Locked
-    thumbnail_url: null,
-    preview_url: 'https://example.com/preview5.mp4',
+    media: [{ url: 'https://example.com/preview5.mp4', media_type: 'video' }],
+    media_urls: ['https://example.com/preview5.mp4'],
     is_paid: true,
-    price: 199,
-    visibility: 'public',
+    is_exclusive: true,
+    visibility: 'membership',
     is_locked: true,
-    created_at: new Date(Date.now() - 172800000).toISOString(),
+    created_on: new Date(Date.now() - 172800000).toISOString(),
   },
   {
     id: 6,
@@ -146,17 +147,16 @@ const MOCK_CONTENT: Content[] = [
     creator_username: 'priya_sharma',
     creator_name: 'Priya Sharma',
     creator_avatar: null,
-    type: 'image',
     title: 'Personal Style Guide',
     description: 'Complete guide to finding your personal style',
     url: null, // Locked
-    thumbnail_url: null,
-    preview_url: null,
+    media: [{ url: 'https://example.com/locked_image.jpg', media_type: 'image' }],
+    media_urls: ['https://example.com/locked_image.jpg'],
     is_paid: true,
-    price: 149,
+    is_exclusive: false,
     visibility: 'membership',
     is_locked: true,
-    created_at: new Date(Date.now() - 259200000).toISOString(),
+    created_on: new Date(Date.now() - 259200000).toISOString(),
   },
 
   // Creator 2 (Arjun Kumar - Fitness Coach)
@@ -166,17 +166,16 @@ const MOCK_CONTENT: Content[] = [
     creator_username: 'arjun_fitness',
     creator_name: 'Arjun Kumar',
     creator_avatar: null,
-    type: 'video',
     title: 'Morning Workout Routine',
     description: 'Start your day with this energizing 20-minute workout',
     url: 'https://example.com/video2.mp4',
-    thumbnail_url: null,
-    preview_url: null,
+    media: [{ url: 'https://example.com/video2.mp4', media_type: 'video' }],
+    media_urls: ['https://example.com/video2.mp4'],
     is_paid: false,
-    price: 0,
+    is_exclusive: false,
     visibility: 'public',
     is_locked: false,
-    created_at: new Date(Date.now() - 3600000).toISOString(),
+    created_on: new Date(Date.now() - 3600000).toISOString(),
   },
   {
     id: 7,
@@ -184,17 +183,16 @@ const MOCK_CONTENT: Content[] = [
     creator_username: 'arjun_fitness',
     creator_name: 'Arjun Kumar',
     creator_avatar: null,
-    type: 'video',
     title: 'Advanced Strength Training',
     description: 'Premium workout program for muscle building',
     url: null, // Locked
-    thumbnail_url: null,
-    preview_url: 'https://example.com/preview7.mp4',
+    media: [{ url: 'https://example.com/preview7.mp4', media_type: 'video' }],
+    media_urls: ['https://example.com/preview7.mp4'],
     is_paid: true,
-    price: 299,
-    visibility: 'public',
+    is_exclusive: true,
+    visibility: 'membership',
     is_locked: true,
-    created_at: new Date(Date.now() - 86400000).toISOString(),
+    created_on: new Date(Date.now() - 86400000).toISOString(),
   },
   {
     id: 8,
@@ -202,17 +200,16 @@ const MOCK_CONTENT: Content[] = [
     creator_username: 'arjun_fitness',
     creator_name: 'Arjun Kumar',
     creator_avatar: null,
-    type: 'image',
     title: 'Nutrition Plan',
     description: 'Complete meal plan for fitness goals',
     url: null, // Locked
-    thumbnail_url: null,
-    preview_url: null,
+    media: [{ url: 'https://example.com/locked_image.jpg', media_type: 'image' }],
+    media_urls: ['https://example.com/locked_image.jpg'],
     is_paid: true,
-    price: 199,
+    is_exclusive: false,
     visibility: 'membership',
     is_locked: true,
-    created_at: new Date(Date.now() - 172800000).toISOString(),
+    created_on: new Date(Date.now() - 172800000).toISOString(),
   },
 
   // Creator 3 (Neha Patel - Singer & Musician)
@@ -222,17 +219,16 @@ const MOCK_CONTENT: Content[] = [
     creator_username: 'neha_music',
     creator_name: 'Neha Patel',
     creator_avatar: null,
-    type: 'audio',
     title: 'New Single: Dil Ki Baat',
     description: 'My latest single - listen now!',
     url: 'https://example.com/audio3.mp3',
-    thumbnail_url: null,
-    preview_url: null,
+    media: [{ url: 'https://example.com/audio3.mp3', media_type: 'audio' }],
+    media_urls: ['https://example.com/audio3.mp3'],
     is_paid: false,
-    price: 0,
+    is_exclusive: false,
     visibility: 'public',
     is_locked: false,
-    created_at: new Date(Date.now() - 7200000).toISOString(),
+    created_on: new Date(Date.now() - 7200000).toISOString(),
   },
   {
     id: 9,
@@ -240,17 +236,16 @@ const MOCK_CONTENT: Content[] = [
     creator_username: 'neha_music',
     creator_name: 'Neha Patel',
     creator_avatar: null,
-    type: 'video',
     title: 'Live Concert Recording',
     description: 'Exclusive recording from my Mumbai concert',
     url: null, // Locked
-    thumbnail_url: null,
-    preview_url: 'https://example.com/preview9.mp4',
+    media: [{ url: 'https://example.com/preview9.mp4', media_type: 'video' }],
+    media_urls: ['https://example.com/preview9.mp4'],
     is_paid: true,
-    price: 249,
-    visibility: 'public',
+    is_exclusive: true,
+    visibility: 'membership',
     is_locked: true,
-    created_at: new Date(Date.now() - 86400000).toISOString(),
+    created_on: new Date(Date.now() - 86400000).toISOString(),
   },
   {
     id: 10,
@@ -258,73 +253,16 @@ const MOCK_CONTENT: Content[] = [
     creator_username: 'neha_music',
     creator_name: 'Neha Patel',
     creator_avatar: null,
-    type: 'video',
     title: 'Singing Masterclass',
     description: 'Learn vocal techniques from a professional',
     url: null, // Locked
-    thumbnail_url: null,
-    preview_url: null,
+    media: [{ url: 'https://example.com/locked_video.mp4', media_type: 'video' }],
+    media_urls: ['https://example.com/locked_video.mp4'],
     is_paid: true,
-    price: 399,
+    is_exclusive: false,
     visibility: 'membership',
     is_locked: true,
-    created_at: new Date(Date.now() - 172800000).toISOString(),
-  },
-
-  // Products (merch / digital goods)
-  {
-    id: 11,
-    creator_uid: 1,
-    creator_username: 'priya_sharma',
-    creator_name: 'Priya Sharma',
-    creator_avatar: null,
-    type: 'product',
-    title: 'Summer Capsule Tee',
-    description: 'Limited drop crewneck',
-    url: null,
-    thumbnail_url: null,
-    preview_url: null,
-    is_paid: true,
-    price: 899,
-    visibility: 'public',
-    is_locked: false,
-    created_at: new Date(Date.now() - 3600000).toISOString(),
-  },
-  {
-    id: 12,
-    creator_uid: 2,
-    creator_username: 'arjun_fitness',
-    creator_name: 'Arjun Kumar',
-    creator_avatar: null,
-    type: 'product',
-    title: 'Resistance Bands Set',
-    description: 'Full-body training kit',
-    url: null,
-    thumbnail_url: null,
-    preview_url: null,
-    is_paid: true,
-    price: 1499,
-    visibility: 'public',
-    is_locked: false,
-    created_at: new Date(Date.now() - 7200000).toISOString(),
-  },
-  {
-    id: 13,
-    creator_uid: 3,
-    creator_username: 'neha_music',
-    creator_name: 'Neha Patel',
-    creator_avatar: null,
-    type: 'product',
-    title: 'Signed Vinyl LP',
-    description: 'Limited edition pressing',
-    url: null,
-    thumbnail_url: null,
-    preview_url: null,
-    is_paid: true,
-    price: 2499,
-    visibility: 'membership',
-    is_locked: true,
-    created_at: new Date(Date.now() - 86400000).toISOString(),
+    created_on: new Date(Date.now() - 172800000).toISOString(),
   },
 ];
 
