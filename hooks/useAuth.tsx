@@ -1,10 +1,12 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { authService, type User, type SendOTPRequest, type VerifyOTPRequest } from '@/services/auth';
+import { authService, type User, type SendOTPRequest, type VerifyOTPRequest, SetupPINRequest, LoginPINRequest } from '@/services/auth';
 import { queryClient } from '@/lib/queryClient';
+import { useAppDispatch, useAppSelector } from '@/store';
+import { setAuth, clearAuth, setLoading } from '@/store/slices/authSlice';
 
 // ============================================================================
 // CONTEXT
@@ -24,52 +26,49 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
-  const [refreshToken, setRefreshToken] = useState<string | null>(null);
-  const [sessionToken, setSessionToken] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const dispatch = useAppDispatch();
+  const { user, token, refreshToken, sessionToken, isLoading } = useAppSelector((state) => state.auth);
   const router = useRouter();
 
   useEffect(() => {
-    // Load from localStorage on mount
+    // Restore session from localStorage on mount
+    const storedUser = localStorage.getItem('auth_user');
     const storedToken = localStorage.getItem('auth_token');
     const storedRefreshToken = localStorage.getItem('refresh_token');
     const storedSessionToken = localStorage.getItem('session_token');
-    const storedUser = localStorage.getItem('auth_user');
 
-    if (storedToken && storedUser) {
-      setToken(storedToken);
-      setRefreshToken(storedRefreshToken);
-      setSessionToken(storedSessionToken);
-      setUser(JSON.parse(storedUser));
+    if (storedUser && storedToken) {
+      dispatch(setAuth({
+        user: JSON.parse(storedUser),
+        token: storedToken,
+        refreshToken: storedRefreshToken || undefined,
+        sessionToken: storedSessionToken || undefined,
+      }));
+    } else {
+      dispatch(setLoading(false));
     }
-    setIsLoading(false);
-  }, []);
 
-  useEffect(() => {
-    // Listen for session expiry
+    // Listen for session expiry from axios interceptor
     const handleSessionExpired = () => {
-      setToken(null);
-      setRefreshToken(null);
-      setSessionToken(null);
-      setUser(null);
+        logout();
     };
 
     window.addEventListener('session-expired', handleSessionExpired);
     return () => window.removeEventListener('session-expired', handleSessionExpired);
-  }, []);
+  }, [dispatch]);
 
   const login = (tokens: { access_token: string; refresh_token?: string; session_token?: string }, newUser: User) => {
     localStorage.setItem('auth_token', tokens.access_token);
     if (tokens.refresh_token) localStorage.setItem('refresh_token', tokens.refresh_token);
     if (tokens.session_token) localStorage.setItem('session_token', tokens.session_token);
     localStorage.setItem('auth_user', JSON.stringify(newUser));
-    
-    setToken(tokens.access_token);
-    setRefreshToken(tokens.refresh_token || null);
-    setSessionToken(tokens.session_token || null);
-    setUser(newUser);
+
+    dispatch(setAuth({
+      user: newUser,
+      token: tokens.access_token,
+      refreshToken: tokens.refresh_token,
+      sessionToken: tokens.session_token,
+    }));
   };
 
   const logout = () => {
@@ -78,10 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('session_token');
     localStorage.removeItem('auth_user');
     
-    setToken(null);
-    setRefreshToken(null);
-    setSessionToken(null);
-    setUser(null);
+    dispatch(clearAuth());
     queryClient.clear();
     router.push('/login');
   };
@@ -128,21 +124,15 @@ export function useVerifyOTP() {
   return useMutation({
     mutationFn: (data: VerifyOTPRequest) => authService.verifyOTP(data),
     onSuccess: async (response) => {
-      // Temporarily store access_token so getMe() can use it via axios interceptor
       localStorage.setItem('auth_token', response.access_token);
-      
       try {
-        // Fetch user profile
         const user = await authService.getMe();
-        
-        // Properly login with all tokens and user data
         login({
           access_token: response.access_token,
           refresh_token: response.refresh_token,
           session_token: response.session_token
         }, user);
       } catch (error) {
-        // If profile fetch fails, clear the token we just set
         localStorage.removeItem('auth_token');
         throw error;
       }
