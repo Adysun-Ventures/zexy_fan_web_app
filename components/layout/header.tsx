@@ -7,13 +7,15 @@ import { useState } from 'react';
 import { useAuthContext, useLogout } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { CreditCard, Home, LogOut, Menu, MessageCircle, User, Users, X } from 'lucide-react';
+import { CreditCard, Home, LogOut, Menu, MessageCircle, User, Users, X, History, Receipt } from 'lucide-react';
 
 const navItems = [
   { href: '/feed', label: 'Feed', icon: Home },
   { href: '/creators', label: 'Creators', icon: Users },
   { href: '/subscriptions', label: 'Subscriptions', icon: CreditCard },
   { href: '/chats', label: 'Chats', icon: MessageCircle },
+  { href: '/activity', label: 'Activity History', icon: History },
+  { href: '/billing', label: 'Billing & Invoices', icon: Receipt },
   { href: '/profile', label: 'Profile', icon: User },
 ];
 

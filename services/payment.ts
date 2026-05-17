@@ -45,6 +45,19 @@ export interface VerifyPaymentResponse {
   reference_id: number;
 }
 
+export interface Transaction {
+  id: number;
+  gross_amount: number;
+  currency: string;
+  purpose: string;
+  reference_id: number | null;
+  status: string;
+  gateway_payment_id: string;
+  created_at: string;
+  creator_name?: string;
+  creator_username?: string;
+}
+
 // ============================================================================
 // API FUNCTIONS
 // ============================================================================
@@ -120,4 +133,45 @@ export const paymentService = {
     const response = await apiClient.post('/api/v1/fan/payments/verify', data);
     return response.data.data || response.data;
   },
+
+  /**
+   * Get payment history
+   */
+  getHistory: async (skip: number = 0, limit: number = 50): Promise<Transaction[]> => {
+    if (ENV.IS_MOCK) {
+      await sleep(500);
+      return [];
+    }
+    const response = await apiClient.get('/api/v1/fan/payments', {
+      params: { skip, limit }
+    });
+    return response.data.data;
+  },
+
+  /**
+   * Download PDF invoice
+   */
+  downloadInvoice: async (transactionId: number): Promise<void> => {
+    if (ENV.IS_MOCK) {
+       alert('Invoice download not available in mock mode');
+       return;
+    }
+
+    try {
+      const response = await apiClient.get(`/api/v1/fan/payments/transactions/${transactionId}/invoice`, {
+        responseType: 'blob'
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Zexy_Invoice_${transactionId}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Invoice download failed:', error);
+      throw error;
+    }
+  }
 };
