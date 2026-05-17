@@ -42,7 +42,7 @@ export default function ProfilePage() {
         <CardHeader className="pb-2">
           <CardTitle className="text-lg flex items-center gap-2">
             <Crown className="h-5 w-5 text-amber-500" />
-            Membership
+            Subscription
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-0 pb-4">

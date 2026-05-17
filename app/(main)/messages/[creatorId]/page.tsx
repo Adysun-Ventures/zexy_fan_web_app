@@ -86,7 +86,7 @@ export default function MessageThreadPage() {
           messages.length === 0 &&
           !error && (
             <p className="text-center text-muted-foreground text-sm py-8">
-              No messages yet. Say hi below — you need an active membership to message this creator.
+              No messages yet. Say hi below — you need an active subscription to message this creator.
             </p>
           )}
         {messages?.map((m) => {

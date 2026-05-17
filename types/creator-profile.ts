@@ -50,7 +50,7 @@ export interface ExclusiveContent {
   media_type: 'image' | 'video' | 'audio';
 }
 
-export interface MembershipPlan {
+export interface SubscriptionPlan {
   id: number;
   name: string;
   price: number;
@@ -67,7 +67,7 @@ export type ProfileSectionType =
   | 'actions' 
   | 'qa' 
   | 'exclusives' 
-  | 'membership' 
+  | 'subscription' 
   | 'custom';
 
 export interface ProfileSection {

@@ -1,5 +1,5 @@
 /**
- * Membership Card Section
+ * Subscription Card Section
  *
  * Displays subscription plans with a "Subscribe Now" button that opens a
  * full-screen subscription modal to handle the payment flow.
@@ -17,24 +17,24 @@ import { useRouter } from 'next/navigation';
 import { SubscriptionModal } from '@/components/subscription-modal';
 import type { SubscriptionPlan } from '@/services/subscriptions';
 
-interface MembershipCardSectionProps {
+interface SubscriptionCardSectionProps {
   plans: SubscriptionPlan[];
   isSubscribed: boolean;
   creatorName?: string;
 }
 
 /**
- * Membership card section component
+ * Subscription card section component
  *
- * @param plans - Array of membership plans
+ * @param plans - Array of subscription plans
  * @param isSubscribed - Whether the current user is already subscribed
  * @param creatorName - Creator display name for the modal title
  */
-export function MembershipCardSection({
+export function SubscriptionCardSection({
   plans,
   isSubscribed,
   creatorName = 'this creator',
-}: MembershipCardSectionProps) {
+}: SubscriptionCardSectionProps) {
   const { isAuthenticated } = useAuthContext();
   const router = useRouter();
   const [showModal, setShowModal] = useState(false);
@@ -56,7 +56,7 @@ export function MembershipCardSection({
           <CardHeader>
             <div className="flex items-center gap-2">
               <Crown className="h-6 w-6 text-muted-foreground" />
-              <CardTitle className="text-2xl text-muted-foreground">Membership</CardTitle>
+              <CardTitle className="text-2xl text-muted-foreground">Subscription</CardTitle>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -65,7 +65,7 @@ export function MembershipCardSection({
               <div className="space-y-1">
                 <p className="font-semibold">Coming Soon</p>
                 <p className="text-sm text-muted-foreground">
-                  This creator hasn&apos;t set up membership plans yet.
+                  This creator hasn&apos;t set up subscription plans yet.
                 </p>
               </div>
             </div>
@@ -87,7 +87,7 @@ export function MembershipCardSection({
         {/* Section header */}
         <div className="flex items-center gap-2 mb-1">
           <Crown className="h-5 w-5" style={{ color: 'var(--profile-primary)' }} />
-          <h2 className="text-xl font-bold">Membership</h2>
+          <h2 className="text-xl font-bold">Subscription</h2>
         </div>
 
         {/* Plan cards */}

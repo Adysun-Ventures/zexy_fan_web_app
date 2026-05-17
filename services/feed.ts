@@ -49,8 +49,8 @@ export interface Content {
   media_urls: string[];
   is_paid: boolean;
   is_exclusive: boolean;
-  visibility: 'public' | 'membership';
-  is_locked: boolean; // Computed: true if membership and not subscribed
+  visibility: 'public' | 'subscription';
+  is_locked: boolean; // Computed: true if subscription and not subscribed
   created_on: string;
 }
 
@@ -137,7 +137,7 @@ const MOCK_CONTENT: Content[] = [
     media_urls: ['https://example.com/preview5.mp4'],
     is_paid: true,
     is_exclusive: true,
-    visibility: 'membership',
+    visibility: 'subscription',
     is_locked: true,
     created_on: new Date(Date.now() - 172800000).toISOString(),
   },
@@ -154,7 +154,7 @@ const MOCK_CONTENT: Content[] = [
     media_urls: ['https://example.com/locked_image.jpg'],
     is_paid: true,
     is_exclusive: false,
-    visibility: 'membership',
+    visibility: 'subscription',
     is_locked: true,
     created_on: new Date(Date.now() - 259200000).toISOString(),
   },
@@ -190,7 +190,7 @@ const MOCK_CONTENT: Content[] = [
     media_urls: ['https://example.com/preview7.mp4'],
     is_paid: true,
     is_exclusive: true,
-    visibility: 'membership',
+    visibility: 'subscription',
     is_locked: true,
     created_on: new Date(Date.now() - 86400000).toISOString(),
   },
@@ -207,7 +207,7 @@ const MOCK_CONTENT: Content[] = [
     media_urls: ['https://example.com/locked_image.jpg'],
     is_paid: true,
     is_exclusive: false,
-    visibility: 'membership',
+    visibility: 'subscription',
     is_locked: true,
     created_on: new Date(Date.now() - 172800000).toISOString(),
   },
@@ -243,7 +243,7 @@ const MOCK_CONTENT: Content[] = [
     media_urls: ['https://example.com/preview9.mp4'],
     is_paid: true,
     is_exclusive: true,
-    visibility: 'membership',
+    visibility: 'subscription',
     is_locked: true,
     created_on: new Date(Date.now() - 86400000).toISOString(),
   },
@@ -260,7 +260,7 @@ const MOCK_CONTENT: Content[] = [
     media_urls: ['https://example.com/locked_video.mp4'],
     is_paid: true,
     is_exclusive: false,
-    visibility: 'membership',
+    visibility: 'subscription',
     is_locked: true,
     created_on: new Date(Date.now() - 172800000).toISOString(),
   },

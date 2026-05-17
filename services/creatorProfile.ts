@@ -82,8 +82,8 @@ const MOCK_PROFILE_CONFIG: CreatorProfileConfig = {
       config: {},
     },
     {
-      id: 'membership',
-      type: 'membership',
+      id: 'subscription',
+      type: 'subscription',
       enabled: true,
       order: 4,
       config: {},
@@ -105,7 +105,7 @@ const MOCK_PROFILE_CONFIG: CreatorProfileConfig = {
       requiresAuth: true,
     },
     {
-      id: 'membership',
+      id: 'subscription',
       label: 'Lock',
       icon: 'Lock',
       route: '/subscriptions',

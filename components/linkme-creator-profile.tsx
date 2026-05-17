@@ -42,6 +42,16 @@ import {
   Package,
   Video,
   Music,
+  Send,
+  AtSign,
+  Flag,
+  Globe,
+  Linkedin,
+  MessageSquare,
+  HelpCircle,
+  Flame,
+  PlayCircle,
+  Ghost,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -49,34 +59,58 @@ interface LinkMeCreatorProfileProps {
   username: string;
 }
 
-type SocialKind = 'instagram' | 'facebook' | 'x' | 'youtube' | 'link' | 'zexy';
+type SocialKind = 
+  | 'instagram' | 'facebook' | 'x' | 'youtube' | 'link' | 'zexy'
+  | 'snapchat' | 'telegram' | 'threads' | 'facebook_page' | 'website' 
+  | 'linkedin' | 'reddit' | 'discord' | 'quora' | 'takatak' | 'chingari' | 'josh';
 
 function inferSocialKind(url: string): SocialKind | null {
   const u = url.toLowerCase();
-  if (u.includes('instagram.com') || u.includes('instagr.am')) return 'instagram';
-  if (u.includes('facebook.com') || u.includes('fb.com')) return 'facebook';
+  if (u.includes('instagram.com')) return 'instagram';
+  if (u.includes('facebook.com') || u.includes('fb.com')) {
+      if (u.includes('pages')) return 'facebook_page';
+      return 'facebook';
+  }
   if (u.includes('twitter.com') || u.includes('x.com')) return 'x';
   if (u.includes('youtube.com') || u.includes('youtu.be')) return 'youtube';
-  if (u.startsWith('http://') || u.startsWith('https://')) return 'link';
+  if (u.includes('snapchat.com')) return 'snapchat';
+  if (u.includes('t.me')) return 'telegram';
+  if (u.includes('threads.net')) return 'threads';
+  if (u.includes('linkedin.com')) return 'linkedin';
+  if (u.includes('reddit.com')) return 'reddit';
+  if (u.includes('discord.')) return 'discord';
+  if (u.includes('quora.com')) return 'quora';
+  if (u.includes('takatak')) return 'takatak';
+  if (u.includes('chingari')) return 'chingari';
+  if (u.includes('josh')) return 'josh';
+  if (u.startsWith('http')) return 'website';
   return null;
 }
 
 function SocialIcon({ kind }: { kind: SocialKind }) {
   switch (kind) {
-    case 'instagram':
-      return <Instagram className="h-5 w-5 text-[#E1306C]" />;
-    case 'facebook':
-      return <Facebook className="h-5 w-5 text-[#1877F2]" />;
+    case 'instagram': return <Instagram className="h-5 w-5 text-[#E1306C]" />;
+    case 'facebook': return <Facebook className="h-5 w-5 text-[#1877F2]" />;
+    case 'facebook_page': return <Flag className="h-5 w-5 text-[#1877F2]" />;
     case 'x':
       return (
         <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5 fill-black">
           <path d="M18.901 1.153h3.68l-8.039 9.189L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932 6.064-6.932Zm-1.29 19.493h2.039L6.486 3.24H4.298L17.611 20.646Z" />
         </svg>
       );
-    case 'youtube':
-      return <Youtube className="h-5 w-5 text-[#FF0000]" />;
-    case 'link':
-      return <ExternalLink className="h-5 w-5 text-black" />;
+    case 'youtube': return <Youtube className="h-5 w-5 text-[#FF0000]" />;
+    case 'snapchat': return <Ghost className="h-5 w-5 text-[#FFFC00]" />;
+    case 'telegram': return <Send className="h-5 w-5 text-[#0088cc]" />;
+    case 'threads': return <AtSign className="h-5 w-5 text-black" />;
+    case 'website': return <Globe className="h-5 w-5 text-zinc-600" />;
+    case 'linkedin': return <Linkedin className="h-5 w-5 text-[#0a66c2]" />;
+    case 'reddit': return <MessageSquare className="h-5 w-5 text-[#ff4500]" />;
+    case 'discord': return <MessageSquare className="h-5 w-5 text-[#5865f2]" />;
+    case 'quora': return <HelpCircle className="h-5 w-5 text-[#b92b27]" />;
+    case 'takatak': return <Video className="h-5 w-5 text-pink-500" />;
+    case 'chingari': return <Flame className="h-5 w-5 text-orange-500" />;
+    case 'josh': return <PlayCircle className="h-5 w-5 text-red-500" />;
+    case 'link': return <ExternalLink className="h-5 w-5 text-black" />;
     case 'zexy':
       return (
         <Image
@@ -99,18 +133,23 @@ function buildFixedSocialRow(actionButtons: ActionButton[] | undefined): SocialE
   const links =
     actionButtons?.filter((b) => b.type === 'custom_link' && typeof b.action === 'string') ?? [];
 
-  const pick = (kind: Exclude<SocialKind, 'zexy'>) =>
+  const pick = (kind: SocialKind) =>
     links.find((b) => inferSocialKind(b.action) === kind);
 
-  // Render a fixed order like the screenshot, even if some are missing.
-  return [
-    { kind: 'instagram', button: pick('instagram') },
-    { kind: 'facebook', button: pick('facebook') },
-    { kind: 'x', button: pick('x') },
-    { kind: 'youtube', button: pick('youtube') },
-    // Zexy icon always present (we'll route internally)
-    { kind: 'zexy' },
+  const platforms: SocialKind[] = [
+    'instagram', 'youtube', 'facebook', 'facebook_page', 'x', 
+    'snapchat', 'telegram', 'threads', 'website', 'linkedin', 
+    'reddit', 'discord', 'quora', 'takatak', 'chingari', 'josh'
   ];
+
+  const result: SocialEntry[] = platforms
+    .map(kind => ({ kind, button: pick(kind) }))
+    .filter(entry => !!entry.button);
+  
+  // Zexy icon always present at the end
+  result.push({ kind: 'zexy' });
+
+  return result;
 }
 
 function clamp01(v: number) {
@@ -285,7 +324,7 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
   const { data: plans } = useCreatorPlans(creator?.id || 0);
 
   const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const [isMembershipOpen, setIsMembershipOpen] = useState(false);
+  const [isSubscriptionOpen, setIsSubscriptionOpen] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const [scrollY, setScrollY] = useState(0);
@@ -297,11 +336,11 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
     }
 
     if (!plans || plans.length === 0) {
-      toast.message('No membership plans available yet.');
+      toast.message('No subscription plans available yet.');
       return;
     }
 
-    setIsMembershipOpen(true);
+    setIsSubscriptionOpen(true);
   };
 
   useEffect(() => {
@@ -539,11 +578,11 @@ export function LinkMeCreatorProfile({ username }: LinkMeCreatorProfileProps) {
 
       <SignupModal open={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
 
-      {isMembershipOpen && plans && plans.length > 0 && (
+      {isSubscriptionOpen && plans && plans.length > 0 && (
         <SubscriptionModal
           creatorName={displayName}
           plans={plans}
-          onClose={() => setIsMembershipOpen(false)}
+          onClose={() => setIsSubscriptionOpen(false)}
         />
       )}
     </div>
@@ -709,4 +748,3 @@ function CreatorMediaBlocks({ creatorAvatarSrc }: { creatorAvatarSrc: string }) 
     </div>
   );
 }
-
