@@ -11,14 +11,14 @@ export interface Creator {
   username: string;
   name: string;
   avatar: string | null;
-  niche: string | null;
+  category: string | null;
   subscriber_count: number;
   is_subscribed: boolean;
 }
 
 export interface CreatorFilters {
   search?: string;
-  niche?: string;
+  category?: string;
   city?: string;
   gender?: 'male' | 'female' | 'other';
 }
@@ -64,7 +64,7 @@ const MOCK_CREATORS: Creator[] = [
     username: 'priya_sharma',
     name: 'Priya Sharma',
     avatar: null,
-    niche: 'Fashion & Lifestyle',
+    category: 'Fashion & Lifestyle',
     subscriber_count: 125000,
     is_subscribed: false,
   },
@@ -73,7 +73,7 @@ const MOCK_CREATORS: Creator[] = [
     username: 'arjun_fitness',
     name: 'Arjun Kumar',
     avatar: null,
-    niche: 'Fitness Coach',
+    category: 'Fitness Coach',
     subscriber_count: 89000,
     is_subscribed: false,
   },
@@ -82,7 +82,7 @@ const MOCK_CREATORS: Creator[] = [
     username: 'neha_music',
     name: 'Neha Patel',
     avatar: null,
-    niche: 'Singer & Musician',
+    category: 'Singer & Musician',
     subscriber_count: 210000,
     is_subscribed: true,
   },
@@ -303,12 +303,12 @@ export const feedService = {
           (c) =>
             c.name?.toLowerCase().includes(q) ||
             c.username?.toLowerCase().includes(q) ||
-            c.niche?.toLowerCase().includes(q)
+            c.category?.toLowerCase().includes(q)
         );
       }
 
-      if (filters.niche) {
-        dataset = dataset.filter((c) => c.niche?.toLowerCase() === filters.niche?.toLowerCase());
+      if (filters.category) {
+        dataset = dataset.filter((c) => c.category?.toLowerCase() === filters.category?.toLowerCase());
       }
 
       const startIndex = cursor
@@ -333,7 +333,7 @@ export const feedService = {
     const params: Record<string, string | number> = { limit };
     if (cursor) params.cursor = cursor;
     if (filters.search) params.search = filters.search;
-    if (filters.niche) params.niche = filters.niche;
+    if (filters.category) params.category = filters.category;
     if (filters.city) params.city = filters.city;
     if (filters.gender) params.gender = filters.gender;
 

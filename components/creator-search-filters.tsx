@@ -9,9 +9,9 @@ import { cn } from '@/lib/utils';
 import { City } from 'country-state-city';
 
 type GenderValue = 'ALL' | 'M' | 'F' | 'O';
-type FilterType = 'city' | 'gender' | 'niche' | null;
+type FilterType = 'city' | 'gender' | 'category' | null;
 
-const COMBINED_NICHE_OPTIONS = [
+const COMBINED_CATEGORY_OPTIONS = [
   'fitness',
   'music',
   'comedy',
@@ -65,10 +65,10 @@ export function CreatorSearchFilters({
 }: CreatorSearchFiltersProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [citySearchQuery, setCitySearchQuery] = useState('');
-  const [nicheSearchQuery, setNicheSearchQuery] = useState('');
+  const [categorySearchQuery, setCategorySearchQuery] = useState('');
   const [selectedCity, setSelectedCity] = useState('all');
   const [selectedGender, setSelectedGender] = useState<GenderValue>('ALL');
-  const [selectedNiche, setSelectedNiche] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState('all');
   const [openFilter, setOpenFilter] = useState<FilterType>(null);
 
   const cityOptions = useMemo(() => {
@@ -92,22 +92,22 @@ export function CreatorSearchFilters({
     return cityOptions.filter((city) => normalize(city).includes(cityQuery));
   }, [cityOptions, citySearchQuery]);
 
-  const nicheOptions = useMemo(() => {
+  const categoryOptions = useMemo(() => {
     const values = (creators || [])
-      .map((creator) => creator.niche)
-      .filter((niche): niche is string => Boolean(niche && niche.trim()))
-      .map((niche) => niche.trim());
+      .map((creator) => creator.category)
+      .filter((category): category is string => Boolean(category && category.trim()))
+      .map((category) => category.trim());
 
-    return Array.from(new Set([...COMBINED_NICHE_OPTIONS, ...values])).sort((a, b) =>
+    return Array.from(new Set([...COMBINED_CATEGORY_OPTIONS, ...values])).sort((a, b) =>
       a.localeCompare(b)
     );
   }, [creators]);
 
-  const filteredNicheOptions = useMemo(() => {
-    const nicheQuery = normalize(nicheSearchQuery);
-    if (!nicheQuery) return nicheOptions;
-    return nicheOptions.filter((niche) => normalize(niche).includes(nicheQuery));
-  }, [nicheOptions, nicheSearchQuery]);
+  const filteredCategoryOptions = useMemo(() => {
+    const categoryQuery = normalize(categorySearchQuery);
+    if (!categoryQuery) return categoryOptions;
+    return categoryOptions.filter((category) => normalize(category).includes(categoryQuery));
+  }, [categoryOptions, categorySearchQuery]);
 
   const genderOptions: Exclude<GenderValue, 'ALL'>[] = ['M', 'F', 'O'];
 
@@ -116,7 +116,7 @@ export function CreatorSearchFilters({
       onFiltersChange({
         search: searchQuery.trim() || undefined,
         city: selectedCity === 'all' ? undefined : selectedCity,
-        niche: selectedNiche === 'all' ? undefined : selectedNiche,
+        category: selectedCategory === 'all' ? undefined : selectedCategory,
         gender:
           selectedGender === 'ALL'
             ? undefined
@@ -129,21 +129,21 @@ export function CreatorSearchFilters({
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [searchQuery, selectedCity, selectedGender, selectedNiche, onFiltersChange]);
+  }, [searchQuery, selectedCity, selectedGender, selectedCategory, onFiltersChange]);
 
   useEffect(() => {
     if (openFilter !== 'city') {
       setCitySearchQuery('');
     }
-    if (openFilter !== 'niche') {
-      setNicheSearchQuery('');
+    if (openFilter !== 'category') {
+      setCategorySearchQuery('');
     }
   }, [openFilter]);
 
   const activeFiltersCount =
     Number(selectedCity !== 'all') +
     Number(selectedGender !== 'ALL') +
-    Number(selectedNiche !== 'all');
+    Number(selectedCategory !== 'all');
 
   return (
     <div className="space-y-3">
@@ -166,9 +166,9 @@ export function CreatorSearchFilters({
           <span className="truncate text-xs sm:text-sm">Gender ({formatGenderLabel(selectedGender)})</span>
           <ChevronDown className="h-4 w-4 shrink-0" />
         </Button>
-        <Button variant="outline" className="justify-between" onClick={() => setOpenFilter('niche')}>
+        <Button variant="outline" className="justify-between" onClick={() => setOpenFilter('category')}>
           <span className="truncate text-xs sm:text-sm">
-            Niche ({selectedNiche === 'all' ? 'All' : toTitleCase(selectedNiche)})
+            Category ({selectedCategory === 'all' ? 'All' : toTitleCase(selectedCategory)})
           </span>
           <ChevronDown className="h-4 w-4 shrink-0" />
         </Button>
@@ -249,33 +249,33 @@ export function CreatorSearchFilters({
                 </>
               )}
 
-              {openFilter === 'niche' && (
+              {openFilter === 'category' && (
                 <>
                   <div className="sticky top-0 z-10 bg-background p-2">
                     <div className="relative">
                       <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                       <Input
-                        value={nicheSearchQuery}
-                        onChange={(e) => setNicheSearchQuery(e.target.value)}
-                        placeholder="Search niche..."
+                        value={categorySearchQuery}
+                        onChange={(e) => setCategorySearchQuery(e.target.value)}
+                        placeholder="Search category..."
                         className="pl-9"
                       />
                     </div>
                   </div>
-                  {['all', ...filteredNicheOptions].map((niche) => (
+                  {['all', ...filteredCategoryOptions].map((category) => (
                     <button
-                      key={niche}
+                      key={category}
                       className={cn(
                         'flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm hover:bg-accent',
-                        selectedNiche === niche && 'bg-accent'
+                        selectedCategory === category && 'bg-accent'
                       )}
                       onClick={() => {
-                        setSelectedNiche(niche);
+                        setSelectedCategory(category);
                         setOpenFilter(null);
                       }}
                     >
-                      <span>{niche === 'all' ? 'All' : toTitleCase(niche)}</span>
-                      {selectedNiche === niche && <Check className="h-4 w-4 text-primary" />}
+                      <span>{category === 'all' ? 'All' : toTitleCase(category)}</span>
+                      {selectedCategory === category && <Check className="h-4 w-4 text-primary" />}
                     </button>
                   ))}
                 </>
