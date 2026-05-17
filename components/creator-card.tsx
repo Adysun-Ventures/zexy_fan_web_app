@@ -87,9 +87,9 @@ export function CreatorCard({ creator, className }: CreatorCardProps) {
           </p>
           
           {/* Niche Badge */}
-          {creator.niche && (
+          {creator.category && (
             <Badge variant="secondary" className="text-xs">
-              {creator.niche}
+              {creator.category}
             </Badge>
           )}
           
