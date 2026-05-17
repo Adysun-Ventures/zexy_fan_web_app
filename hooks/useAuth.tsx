@@ -150,6 +150,34 @@ export function useVerifyOTP() {
   });
 }
 
+export function useLoginWithPIN() {
+  const { login } = useAuthContext();
+
+  return useMutation({
+    mutationFn: (data: LoginPINRequest) => authService.loginWithPIN(data),
+    onSuccess: async (response) => {
+      localStorage.setItem('auth_token', response.access_token);
+      try {
+        const user = await authService.getMe();
+        login({
+          access_token: response.access_token,
+          refresh_token: response.refresh_token,
+          session_token: response.session_token
+        }, user);
+      } catch (error) {
+        localStorage.removeItem('auth_token');
+        throw error;
+      }
+    },
+  });
+}
+
+export function useSetupPIN() {
+  return useMutation({
+    mutationFn: (data: SetupPINRequest) => authService.setupPIN(data),
+  });
+}
+
 export function useLogout() {
   const { logout } = useAuthContext();
 

@@ -22,6 +22,16 @@ export interface VerifyOTPRequest {
   role: 'fan';
 }
 
+export interface SetupPINRequest {
+  pin: string;
+}
+
+export interface LoginPINRequest {
+  mobile: string;
+  pin: string;
+  role: 'fan';
+}
+
 /** Same contract as zexy_api TokenResponse — do not use onboarding_step || n (0 is valid). Prefer ??. */
 export interface VerifyOTPResponse {
   access_token: string;
@@ -98,6 +108,36 @@ export const authService = {
     }
 
     const response = await apiClient.post('/api/v1/auth/otp/verify', data);
+    return response.data.data;
+  },
+
+  /**
+   * Set 4-digit PIN
+   */
+  setupPIN: async (data: SetupPINRequest): Promise<{ status: string; message: string }> => {
+    if (ENV.IS_MOCK) {
+      await sleep(500);
+      return { status: 'success', message: 'PIN setup successfully' };
+    }
+    const response = await apiClient.post('/api/v1/auth/pin/setup', data);
+    return response.data.data;
+  },
+
+  /**
+   * Login with mobile and PIN
+   */
+  loginWithPIN: async (data: LoginPINRequest): Promise<VerifyOTPResponse> => {
+    if (ENV.IS_MOCK) {
+      await sleep(800);
+      return {
+        access_token: 'mock_access_token_pin_' + Date.now(),
+        refresh_token: 'mock_refresh_token_pin_' + Date.now(),
+        session_token: 'mock_session_token_pin_' + Date.now(),
+        is_new_user: false,
+        onboarding_step: 5,
+      };
+    }
+    const response = await apiClient.post('/api/v1/auth/pin/login', data);
     return response.data.data;
   },
 

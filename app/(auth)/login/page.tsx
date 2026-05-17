@@ -2,7 +2,7 @@
 
 import { useState, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useSendOTP, useVerifyOTP } from '@/hooks/useAuth';
+import { useSendOTP, useVerifyOTP, useLoginWithPIN } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,20 +19,23 @@ function safeInternalPath(raw: string | null): string | null {
 function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [step, setStep] = useState<'phone' | 'otp'>('phone');
+  const [step, setStep] = useState<'phone' | 'otp' | 'pin'>('phone');
   const [mobile, setMobile] = useState('');
   const [otp, setOtp] = useState(['', '', '', '']);
   const otpInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const [pin, setPin] = useState(['', '', '', '']);
+  const pinInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const sendOTP = useSendOTP();
   const verifyOTP = useVerifyOTP();
+  const loginWithPIN = useLoginWithPIN();
 
   const validateMobile = (phone: string) => {
     return /^[6-9]\d{9}$/.test(phone);
   };
 
-  const handleSendOTP = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSendOTP = async (e?: React.FormEvent) => {
+    e?.preventDefault();
 
     if (!validateMobile(mobile)) {
       toast.error('Please enter a valid 10-digit mobile number starting with 6-9');
@@ -58,14 +61,40 @@ function LoginPageContent() {
     }
 
     try {
-      await verifyOTP.mutateAsync({ mobile, otp: otpCode, role: 'fan' });
+      const response = await verifyOTP.mutateAsync({ mobile, otp: otpCode, role: 'fan' });
       toast.success('Login successful!');
-      const next = safeInternalPath(searchParams.get('next'));
-      router.push(next ?? '/feed');
+      
+      if (response.is_new_user) {
+        router.push('/pin-setup');
+      } else {
+        const next = safeInternalPath(searchParams.get('next'));
+        router.push(next ?? '/feed');
+      }
     } catch (error: any) {
       toast.error(error.response?.data?.error?.message || 'Invalid OTP');
       setOtp(['', '', '', '']);
       otpInputRefs.current[0]?.focus();
+    }
+  };
+
+  const handleVerifyPIN = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    const pinCode = pin.join('');
+
+    if (pinCode.length !== 4) {
+      toast.error('Please enter your 4-digit PIN');
+      return;
+    }
+
+    try {
+      await loginWithPIN.mutateAsync({ mobile, pin: pinCode, role: 'fan' });
+      toast.success('Login successful!');
+      const next = safeInternalPath(searchParams.get('next'));
+      router.push(next ?? '/feed');
+    } catch (error: any) {
+      toast.error(error.response?.data?.error?.message || 'Invalid PIN');
+      setPin(['', '', '', '']);
+      pinInputRefs.current[0]?.focus();
     }
   };
 
@@ -82,19 +111,34 @@ function LoginPageContent() {
     }
 
     if (newOtp.every(d => d !== '') && digit) {
-      // Auto-submit when last digit is entered
       setTimeout(() => {
-        const fullOtp = newOtp.join('');
-        if (fullOtp.length === 4) {
-          handleVerifyOTP();
-        }
+        if (newOtp.join('').length === 4) handleVerifyOTP();
       }, 300);
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
-    if (e.key === 'Backspace' && !otp[index] && index > 0) {
-      otpInputRefs.current[index - 1]?.focus();
+  const handlePinChange = (value: string, index: number) => {
+    const digit = value.replace(/\D/g, '').slice(-1);
+    if (!digit && value !== '') return;
+
+    const newPin = [...pin];
+    newPin[index] = digit;
+    setPin(newPin);
+
+    if (digit && index < 3) {
+      pinInputRefs.current[index + 1]?.focus();
+    }
+
+    if (newPin.every(d => d !== '') && digit) {
+      setTimeout(() => {
+        if (newPin.join('').length === 4) handleVerifyPIN();
+      }, 300);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number, isOtp: boolean) => {
+    if (e.key === 'Backspace' && (isOtp ? !otp[index] : !pin[index]) && index > 0) {
+      (isOtp ? otpInputRefs : pinInputRefs).current[index - 1]?.focus();
     }
   };
 
@@ -106,12 +150,14 @@ function LoginPageContent() {
             <span className="text-3xl font-bold italic">Z</span>
           </div>
           <h1 className="text-3xl font-bold tracking-tight">
-            {step === 'phone' ? 'Welcome to Zexy' : 'Verify OTP'}
+            {step === 'phone' ? 'Welcome to Zexy' : step === 'pin' ? 'Login with PIN' : 'Verify OTP'}
           </h1>
           <p className="text-muted-foreground">
             {step === 'phone' 
               ? 'Enter your mobile number to get started' 
-              : `Enter the 4-digit code sent to +91 ${mobile}`}
+              : step === 'pin'
+                ? `Enter your 4-digit PIN for +91 ${mobile}`
+                : `Enter the 4-digit code sent to +91 ${mobile}`}
           </p>
         </div>
 
@@ -138,20 +184,88 @@ function LoginPageContent() {
                     />
                   </div>
                 </div>
-                <Button 
-                  type="submit" 
-                  className="w-full h-12 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition-all active:scale-[0.98]" 
-                  disabled={sendOTP.isPending || mobile.length < 10}
-                >
-                  {sendOTP.isPending ? (
-                    <>
-                      <Loader2 className="mr-2 h-5 w-4 animate-spin" />
-                      Sending OTP...
-                    </>
-                  ) : (
-                    'Get Verification Code'
-                  )}
-                </Button>
+                <div className="space-y-3">
+                  <Button 
+                    type="submit" 
+                    className="w-full h-12 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition-all active:scale-[0.98]" 
+                    disabled={sendOTP.isPending || mobile.length < 10}
+                  >
+                    {sendOTP.isPending ? (
+                      <>
+                        <Loader2 className="mr-2 h-5 w-4 animate-spin" />
+                        Sending OTP...
+                      </>
+                    ) : (
+                      'Get Verification Code'
+                    )}
+                  </Button>
+                  
+                  <button 
+                    type="button"
+                    onClick={() => mobile.length === 10 ? setStep('pin') : toast.error('Enter mobile number first')}
+                    className="w-full text-center text-sm font-semibold text-purple-400 hover:underline py-2"
+                  >
+                    Already have a PIN? Login here
+                  </button>
+                </div>
+              </form>
+            ) : step === 'pin' ? (
+              <form onSubmit={handleVerifyPIN} className="space-y-8">
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center px-1">
+                    <label className="text-xs uppercase tracking-widest text-zinc-500 font-semibold">
+                      Your PIN
+                    </label>
+                    <button 
+                      type="button"
+                      onClick={() => setStep('phone')}
+                      className="text-xs text-purple-400 font-medium hover:underline flex items-center"
+                    >
+                      Change Number
+                    </button>
+                  </div>
+                  
+                  <div className="flex justify-between gap-3">
+                    {pin.map((digit, index) => (
+                      <input
+                        key={index}
+                        ref={(el) => { pinInputRefs.current[index] = el; }}
+                        type="password"
+                        inputMode="numeric"
+                        value={digit}
+                        onChange={(e) => handlePinChange(e.target.value, index)}
+                        onKeyDown={(e) => handleKeyDown(e, index, false)}
+                        className={cn(
+                          "w-full h-14 bg-zinc-800 border border-zinc-700 rounded-xl text-center text-2xl font-bold focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition-all",
+                          digit && "border-purple-500 bg-zinc-800/80"
+                        )}
+                        disabled={loginWithPIN.isPending}
+                        maxLength={1}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <Button 
+                    type="submit" 
+                    className="w-full h-12 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition-all active:scale-[0.98]" 
+                    disabled={loginWithPIN.isPending || pin.join('').length < 4}
+                  >
+                    {loginWithPIN.isPending ? (
+                      <>
+                        <Loader2 className="mr-2 h-5 w-4 animate-spin" />
+                        Logging in...
+                      </>
+                    ) : (
+                      'Login'
+                    )}
+                  </Button>
+                  
+                  <p className="text-center text-sm text-zinc-500">
+                    Forgot PIN? <button type="button" className="text-purple-400 font-medium hover:underline" onClick={handleSendOTP}>Use OTP instead</button>
+                  </p>
+                </div>
               </form>
             ) : (
               <form onSubmit={handleVerifyOTP} className="space-y-8">
@@ -179,7 +293,7 @@ function LoginPageContent() {
                         autoComplete="one-time-code"
                         value={digit}
                         onChange={(e) => handleOtpChange(e.target.value, index)}
-                        onKeyDown={(e) => handleKeyDown(e, index)}
+                        onKeyDown={(e) => handleKeyDown(e, index, true)}
                         className={cn(
                           "w-full h-14 bg-zinc-800 border border-zinc-700 rounded-xl text-center text-2xl font-bold focus:border-purple-500 focus:ring-1 focus:ring-purple-500 outline-none transition-all",
                           digit && "border-purple-500 bg-zinc-800/80"
